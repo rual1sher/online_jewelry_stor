@@ -9,6 +9,7 @@
     "build": "nest build",
     "dev": "nest start --watch",
     "prod": "node dist/main",
+    "start": "npm run build && npm run prod",
     "lint": "eslint \"{src,apps,libs}/**/*.ts\" --fix",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
