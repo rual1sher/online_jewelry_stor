@@ -6,6 +6,7 @@ import { apiErrorMessage } from "@/api/client";
 import { useUploadImage } from "@/api/uploads";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useT } from "@/lib/i18n";
 
 interface ImageUploadFieldProps {
   value: string;
@@ -18,6 +19,7 @@ export function ImageUploadField({
   onChange,
   placeholder = "https://…",
 }: ImageUploadFieldProps) {
+  const t = useT();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploadImage = useUploadImage();
 
@@ -29,7 +31,7 @@ export function ImageUploadField({
       const result = await uploadImage.mutateAsync(file);
       onChange(result.url);
     } catch (error) {
-      toast.error(apiErrorMessage(error, "Не удалось загрузить файл"));
+      toast.error(apiErrorMessage(error, t("common.uploadFailed")));
     }
   };
 

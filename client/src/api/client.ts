@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { t } from '@/lib/i18n'
 import { useAuthStore } from '@/store/auth'
 
 export const apiClient = axios.create({
@@ -23,7 +24,7 @@ apiClient.interceptors.response.use(
   },
 )
 
-export function apiErrorMessage(error: unknown, fallback = 'Что-то пошло не так'): string {
+export function apiErrorMessage(error: unknown, fallback = t('common.error')): string {
   if (axios.isAxiosError(error)) {
     const data = error.response?.data as { message?: string | string[] } | undefined
     if (Array.isArray(data?.message)) return data.message.join(', ')

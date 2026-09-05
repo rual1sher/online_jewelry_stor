@@ -5,7 +5,8 @@ import { useUpdateOrderStatus } from '@/api/orders'
 import type { OrderDetail, OrderStatus } from '@/api/types'
 import { ConfirmDialog } from '@/components/common/confirm-dialog'
 import { Button } from '@/components/ui/button'
-import { ORDER_STATUS_LABELS } from '@/lib/constants'
+import { ORDER_STATUS_KEY } from '@/lib/constants'
+import { useT } from '@/lib/i18n'
 
 const ALLOWED_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   NEW: ['CONFIRMED', 'CANCELLED'],
@@ -16,6 +17,7 @@ const ALLOWED_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
 }
 
 export function OrderStatusActions({ order }: { order: OrderDetail }) {
+  const t = useT()
   const updateStatus = useUpdateOrderStatus()
   const [confirmTarget, setConfirmTarget] = useState<OrderStatus | null>(null)
 
@@ -26,7 +28,7 @@ export function OrderStatusActions({ order }: { order: OrderDetail }) {
     if (!confirmTarget) return
     try {
       await updateStatus.mutateAsync({ id: order.id, status: confirmTarget })
-      toast.success(`Статус изменён на «${ORDER_STATUS_LABELS[confirmTarget]}»`)
+      toast.success(t('orders.statusChanged', { status: t(ORDER_STATUS_KEY[confirmTarget]) }))
     } catch (error) {
       toast.error(apiErrorMessage(error))
     }
@@ -41,22 +43,26 @@ export function OrderStatusActions({ order }: { order: OrderDetail }) {
           size="sm"
           onClick={() => setConfirmTarget(status)}
         >
-          {status === 'CANCELLED' ? 'Отменить заказ' : `→ ${ORDER_STATUS_LABELS[status]}`}
+          {status === 'CANCELLED' ? t('orders.cancel') : `→ ${t(ORDER_STATUS_KEY[status])}`}
         </Button>
       ))}
       <ConfirmDialog
         open={Boolean(confirmTarget)}
         onOpenChange={(open) => !open && setConfirmTarget(null)}
-        title={confirmTarget ? `Перевести заказ в статус «${ORDER_STATUS_LABELS[confirmTarget]}»?` : ''}
+        title={
+          confirmTarget
+            ? t('orders.statusConfirmTitle', { status: t(ORDER_STATUS_KEY[confirmTarget]) })
+            : ''
+        }
         description={
           confirmTarget === 'SHIPPED'
-            ? 'Товар будет списан со склада.'
+            ? t('orders.shippedWarning')
             : confirmTarget === 'CANCELLED' && order.status === 'SHIPPED'
-              ? 'Товар будет возвращён на склад, заказ исключается из выручки.'
+              ? t('orders.cancelWarning')
               : undefined
         }
         danger={confirmTarget === 'CANCELLED'}
-        confirmLabel="Подтвердить"
+        confirmLabel={t('common.confirm')}
         onConfirm={handleConfirm}
       />
     </div>

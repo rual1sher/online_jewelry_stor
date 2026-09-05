@@ -2,6 +2,7 @@ import { RevenueProfitChart } from '@/components/common/revenue-profit-chart'
 import { DateRangeFilter } from '@/components/common/date-range-filter'
 import { PageHeader } from '@/components/common/page-header'
 import { useLocalDateRange } from '@/lib/dateRange'
+import { useT } from '@/lib/i18n'
 import {
   useExpenseDynamics,
   useProfitDynamics,
@@ -13,6 +14,7 @@ import { ExpenseDynamicsChart } from './components/expense-dynamics-chart'
 import { TopProductsTable } from './components/top-products-table'
 
 export function ReportsPage() {
+  const t = useT()
   const { preset, customFrom, customTo, setPreset, setCustomRange, iso } = useLocalDateRange()
 
   const { data: revenue } = useRevenueDynamics(iso.from, iso.to)
@@ -32,9 +34,9 @@ export function ReportsPage() {
 
   return (
     <div>
-      <title>Отчёты — Ювелир</title>
+      <title>{`${t('reports.title')} — ${t('common.appName')}`}</title>
       <PageHeader
-        title="Отчёты"
+        title={t('reports.title')}
         actions={
           <DateRangeFilter
             preset={preset}
@@ -50,9 +52,13 @@ export function ReportsPage() {
         <RevenueProfitChart data={chartData} />
         <ExpenseDynamicsChart data={expenses ?? []} />
         <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
-          <TopProductsTable title="Самые продаваемые товары" data={topSelling} isLoading={topSellingLoading} />
           <TopProductsTable
-            title="Самые прибыльные товары"
+            title={t('reports.topSelling')}
+            data={topSelling}
+            isLoading={topSellingLoading}
+          />
+          <TopProductsTable
+            title={t('reports.topProfitable')}
             data={topProfitable}
             isLoading={topProfitableLoading}
             showCostAndProfit

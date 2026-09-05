@@ -1,9 +1,11 @@
 import { NavLink } from 'react-router-dom'
+import { useT } from '@/lib/i18n'
 import { useAuthStore } from '@/store/auth'
 import { cn } from '@/lib/utils'
 import { NAV_ITEMS } from './nav-items'
 
 export function MobileNav() {
+  const t = useT()
   const user = useAuthStore((s) => s.user)
   const items = NAV_ITEMS.filter((item) => user && item.roles.includes(user.role)).slice(0, 5)
 
@@ -22,7 +24,7 @@ export function MobileNav() {
           }
         >
           <item.icon className="size-5" strokeWidth={1.5} />
-          {item.label}
+          {t(item.labelKey)}
         </NavLink>
       ))}
     </nav>

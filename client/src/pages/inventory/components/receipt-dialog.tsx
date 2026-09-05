@@ -18,9 +18,10 @@ import { Label } from '@/components/ui/label'
 import { MoneyInput } from '@/components/ui/money-input'
 import { Textarea } from '@/components/ui/textarea'
 import { formatMoney } from '@/lib/format'
+import { useT, type TKey } from '@/lib/i18n'
 
 const schema = z.object({
-  quantity: z.coerce.number().int().min(1, 'Минимум 1'),
+  quantity: z.coerce.number().int().min(1, 'validation.minOne'),
   purchasePricePerUnit: z.number().int().min(0),
   packagingPrice: z.number().int().min(0),
   additionalCosts: z.number().int().min(0),
@@ -46,6 +47,7 @@ export function ReceiptDialog({
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
+  const t = useT()
   const createReceipt = useCreateReceipt()
 
   const {
@@ -87,10 +89,10 @@ export function ReceiptDialog({
   const onSubmit = handleSubmit(async (formValues) => {
     try {
       await createReceipt.mutateAsync({ variantId: variant.id, ...formValues })
-      toast.success('Приход оформлен')
+      toast.success(t('inventory.receiptDone'))
       onOpenChange(false)
     } catch (error) {
-      toast.error(apiErrorMessage(error, 'Не удалось оформить приход'))
+      toast.error(apiErrorMessage(error, t('inventory.receiptFailed')))
     }
   })
 
@@ -98,22 +100,22 @@ export function ReceiptDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[420px]">
         <DialogHeader>
-          <DialogTitle>Приход товара</DialogTitle>
+          <DialogTitle>{t('inventory.receiptTitle')}</DialogTitle>
         </DialogHeader>
         <p className="mb-2 text-[13px] text-muted">
-          {variant.name} · остаток {variant.currentStock} шт.
+          {t('inventory.receiptSubtitle', { name: variant.name, stock: variant.currentStock })}
         </p>
         <form onSubmit={onSubmit} className="flex flex-col gap-3">
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="quantity">Количество</Label>
+              <Label htmlFor="quantity">{t('inventory.quantity')}</Label>
               <Input id="quantity" type="number" {...register('quantity')} />
               {errors.quantity ? (
-                <p className="text-[12px] text-danger">{errors.quantity.message}</p>
+                <p className="text-[12px] text-danger">{t(errors.quantity.message as TKey)}</p>
               ) : null}
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="purchasePricePerUnit">Цена закупки/шт</Label>
+              <Label htmlFor="purchasePricePerUnit">{t('inventory.purchasePrice')}</Label>
               <MoneyInput
                 id="purchasePricePerUnit"
                 value={watch('purchasePricePerUnit')}
@@ -123,7 +125,7 @@ export function ReceiptDialog({
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="packagingPrice">Цена упаковки</Label>
+              <Label htmlFor="packagingPrice">{t('inventory.packagingPrice')}</Label>
               <MoneyInput
                 id="packagingPrice"
                 value={watch('packagingPrice')}
@@ -131,7 +133,7 @@ export function ReceiptDialog({
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="additionalCosts">Доп. расходы</Label>
+              <Label htmlFor="additionalCosts">{t('inventory.additionalCosts')}</Label>
               <MoneyInput
                 id="additionalCosts"
                 value={watch('additionalCosts')}
@@ -140,18 +142,18 @@ export function ReceiptDialog({
             </div>
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="receipt-comment">Комментарий</Label>
+            <Label htmlFor="receipt-comment">{t('field.comment')}</Label>
             <Textarea id="receipt-comment" rows={2} {...register('comment')} />
           </div>
           <div className="rounded-md bg-canvas p-3 text-[13px]">
-            Себестоимость единицы: <span className="font-semibold">{formatMoney(unitCost)}</span>
+            {t('inventory.unitCost')} <span className="font-semibold">{formatMoney(unitCost)}</span>
           </div>
           <DialogFooter>
             <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
-              Отмена
+              {t('common.cancel')}
             </Button>
             <Button type="submit" disabled={createReceipt.isPending}>
-              {createReceipt.isPending ? 'Сохраняем…' : 'Оформить приход'}
+              {createReceipt.isPending ? t('common.saving') : t('inventory.receiptSubmit')}
             </Button>
           </DialogFooter>
         </form>

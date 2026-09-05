@@ -10,10 +10,12 @@ import { StatusBadge } from '@/components/common/status-badge'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { USER_ROLE_LABELS } from '@/lib/constants'
+import { USER_ROLE_KEY } from '@/lib/constants'
+import { useT } from '@/lib/i18n'
 import { UserFormDialog } from './user-form-dialog'
 
 export function UsersManager() {
+  const t = useT()
   const { data, isLoading } = useUsers()
   const setActive = useSetUserActive()
   const [formOpen, setFormOpen] = useState(false)
@@ -28,23 +30,23 @@ export function UsersManager() {
             setFormOpen(true)
           }}
         >
-          <Plus className="size-4" /> Новый пользователь
+          <Plus className="size-4" /> {t('settings.newUser')}
         </Button>
       </div>
 
       {isLoading ? (
         <Loading />
       ) : !data || data.length === 0 ? (
-        <EmptyState message="Пользователей пока нет" />
+        <EmptyState message={t('settings.usersEmpty')} />
       ) : (
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Имя</TableHead>
-              <TableHead>Телефон</TableHead>
-              <TableHead>Роль</TableHead>
-              <TableHead>Статус</TableHead>
-              <TableHead>Активен</TableHead>
+              <TableHead>{t('settings.userName')}</TableHead>
+              <TableHead>{t('field.phone')}</TableHead>
+              <TableHead>{t('field.role')}</TableHead>
+              <TableHead>{t('field.status')}</TableHead>
+              <TableHead>{t('settings.userActiveColumn')}</TableHead>
               <TableHead />
             </TableRow>
           </TableHeader>
@@ -53,10 +55,10 @@ export function UsersManager() {
               <TableRow key={user.id}>
                 <TableCell className="font-medium">{user.name}</TableCell>
                 <TableCell className="text-muted">{user.phone}</TableCell>
-                <TableCell>{USER_ROLE_LABELS[user.role]}</TableCell>
+                <TableCell>{t(USER_ROLE_KEY[user.role])}</TableCell>
                 <TableCell>
                   <StatusBadge
-                    label={user.isActive ? 'Активен' : 'Отключён'}
+                    label={user.isActive ? t('settings.userActive') : t('settings.userDisabled')}
                     tone={user.isActive ? 'success' : 'neutral'}
                   />
                 </TableCell>
@@ -81,7 +83,7 @@ export function UsersManager() {
                       setFormOpen(true)
                     }}
                   >
-                    Редактировать
+                    {t('common.edit')}
                   </Button>
                 </TableCell>
               </TableRow>

@@ -8,6 +8,7 @@ import { useUploadImage } from '@/api/uploads'
 import type { ProductImage } from '@/api/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { useT } from '@/lib/i18n'
 
 export function ImageManager({
   productId,
@@ -16,6 +17,7 @@ export function ImageManager({
   productId: string
   images: ProductImage[]
 }) {
+  const t = useT()
   const [url, setUrl] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
   const addImage = useAddImage(productId)
@@ -28,7 +30,7 @@ export function ImageManager({
       await addImage.mutateAsync({ url: url.trim(), sortOrder: images.length })
       setUrl('')
     } catch (error) {
-      toast.error(apiErrorMessage(error, 'Не удалось добавить изображение'))
+      toast.error(apiErrorMessage(error, t('products.imageAddFailed')))
     }
   }
 
@@ -40,7 +42,7 @@ export function ImageManager({
       const uploaded = await uploadImage.mutateAsync(file)
       await addImage.mutateAsync({ url: uploaded.url, sortOrder: images.length })
     } catch (error) {
-      toast.error(apiErrorMessage(error, 'Не удалось загрузить изображение'))
+      toast.error(apiErrorMessage(error, t('products.imageUploadFailed')))
     }
   }
 
@@ -48,7 +50,7 @@ export function ImageManager({
     try {
       await removeImage.mutateAsync(imageId)
     } catch (error) {
-      toast.error(apiErrorMessage(error, 'Не удалось удалить изображение'))
+      toast.error(apiErrorMessage(error, t('products.imageRemoveFailed')))
     }
   }
 
@@ -69,18 +71,18 @@ export function ImageManager({
         ))}
         {images.length === 0 ? (
           <div className="flex size-20 items-center justify-center rounded bg-canvas text-[11px] text-muted">
-            Нет фото
+            {t('products.noPhoto')}
           </div>
         ) : null}
       </div>
       <div className="flex gap-2">
         <Input
-          placeholder="Ссылка на изображение"
+          placeholder={t('products.imageLink')}
           value={url}
           onChange={(e) => setUrl(e.target.value)}
         />
         <Button type="button" variant="secondary" onClick={handleAdd} disabled={addImage.isPending}>
-          <Plus className="size-4" /> Добавить
+          <Plus className="size-4" /> {t('common.add')}
         </Button>
         <input
           ref={fileInputRef}
@@ -96,7 +98,7 @@ export function ImageManager({
           onClick={() => fileInputRef.current?.click()}
         >
           {uploadImage.isPending ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
-          Загрузить
+          {t('common.upload')}
         </Button>
       </div>
     </div>

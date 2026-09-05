@@ -1,11 +1,15 @@
 import { LogOut, Moon, Sun } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
+import { LangSwitcher } from '@/components/common/lang-switcher'
 import { useAuthStore } from '@/store/auth'
 import { useThemeStore } from '@/store/theme'
+import { useT } from '@/lib/i18n'
+import { USER_ROLE_KEY } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { NAV_ITEMS } from './nav-items'
 
 export function Sidebar() {
+  const t = useT()
   const user = useAuthStore((s) => s.user)
   const clearSession = useAuthStore((s) => s.clearSession)
   const { theme, toggleTheme } = useThemeStore()
@@ -15,7 +19,7 @@ export function Sidebar() {
   return (
     <aside className="hidden w-60 shrink-0 flex-col border-r border-line bg-surface md:flex">
       <div className="flex h-14 items-center gap-2 border-b border-line px-4">
-        <span className="font-display text-[18px] font-semibold text-ink">Ювелир</span>
+        <span className="font-display text-[18px] font-semibold text-ink">{t('common.appName')}</span>
       </div>
       <nav className="flex-1 space-y-0.5 px-2 py-3">
         {items.map((item) => (
@@ -31,7 +35,7 @@ export function Sidebar() {
             }
           >
             <item.icon className="size-[18px] shrink-0" strokeWidth={1.5} />
-            {item.label}
+            {t(item.labelKey)}
           </NavLink>
         ))}
       </nav>
@@ -40,17 +44,20 @@ export function Sidebar() {
           <div className="min-w-0">
             <div className="truncate text-[13px] font-medium text-ink">{user?.name}</div>
             <div className="text-[12px] text-muted">
-              {user?.role === 'OWNER' ? 'Владелец' : 'Менеджер'}
+              {user ? t(USER_ROLE_KEY[user.role]) : null}
             </div>
           </div>
           <button
             type="button"
             onClick={toggleTheme}
             className="rounded-md p-1.5 text-muted transition-colors hover:bg-canvas hover:text-ink"
-            aria-label="Переключить тему"
+            aria-label={t('common.toggleTheme')}
           >
             {theme === 'dark' ? <Sun className="size-[18px]" /> : <Moon className="size-[18px]" />}
           </button>
+        </div>
+        <div className="mb-2 px-1">
+          <LangSwitcher />
         </div>
         <button
           type="button"
@@ -58,7 +65,7 @@ export function Sidebar() {
           className="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-[13px] text-muted transition-colors hover:bg-canvas hover:text-ink"
         >
           <LogOut className="size-4" strokeWidth={1.5} />
-          Выйти
+          {t('common.logout')}
         </button>
       </div>
     </aside>

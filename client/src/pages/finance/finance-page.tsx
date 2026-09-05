@@ -5,16 +5,18 @@ import { MetricCard } from '@/components/common/metric-card'
 import { MoneyText } from '@/components/common/money-text'
 import { PageHeader } from '@/components/common/page-header'
 import { useLocalDateRange } from '@/lib/dateRange'
+import { useT } from '@/lib/i18n'
 
 export function FinancePage() {
+  const t = useT()
   const { preset, customFrom, customTo, setPreset, setCustomRange, iso } = useLocalDateRange()
   const { data, isLoading } = useFinanceSummary(iso.from, iso.to)
 
   return (
     <div>
-      <title>Финансы — Ювелир</title>
+      <title>{`${t('finance.title')} — ${t('common.appName')}`}</title>
       <PageHeader
-        title="Финансы"
+        title={t('finance.title')}
         actions={
           <DateRangeFilter
             preset={preset}
@@ -31,16 +33,16 @@ export function FinancePage() {
       ) : (
         <div className="flex flex-col gap-5">
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
-            <MetricCard label="Выручка" value={<MoneyText amount={data.revenue} />} active />
-            <MetricCard label="Себестоимость проданного" value={<MoneyText amount={data.cogs} />} />
-            <MetricCard label="Валовая прибыль" value={<MoneyText amount={data.grossProfit} />} />
-            <MetricCard label="Общие расходы" value={<MoneyText amount={data.totalExpenses} />} />
+            <MetricCard label={t('finance.revenue')} value={<MoneyText amount={data.revenue} />} active />
+            <MetricCard label={t('finance.cogs')} value={<MoneyText amount={data.cogs} />} />
+            <MetricCard label={t('finance.grossProfit')} value={<MoneyText amount={data.grossProfit} />} />
+            <MetricCard label={t('finance.totalExpenses')} value={<MoneyText amount={data.totalExpenses} />} />
             <MetricCard
-              label="Доставка (магазин)"
+              label={t('finance.storeDelivery')}
               value={<MoneyText amount={data.storeDeliveryCost} />}
             />
             <MetricCard
-              label="Чистая прибыль"
+              label={t('finance.netProfit')}
               value={<MoneyText amount={data.netProfit} tone="success" />}
             />
           </div>

@@ -4,6 +4,7 @@ import { Loading } from '@/components/common/loading'
 import { MoneyText } from '@/components/common/money-text'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { useT } from '@/lib/i18n'
 
 interface TopProductsTableProps {
   title: string
@@ -13,6 +14,8 @@ interface TopProductsTableProps {
 }
 
 export function TopProductsTable({ title, data, isLoading, showCostAndProfit }: TopProductsTableProps) {
+  const t = useT()
+
   return (
     <Card>
       <CardHeader>
@@ -22,18 +25,18 @@ export function TopProductsTable({ title, data, isLoading, showCostAndProfit }: 
         {isLoading ? (
           <Loading />
         ) : !data || data.length === 0 ? (
-          <EmptyState message="Нет продаж за выбранный период" />
+          <EmptyState message={t('reports.noSales')} />
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Товар</TableHead>
-                <TableHead>Продано, шт.</TableHead>
-                <TableHead>Выручка</TableHead>
+                <TableHead>{t('field.product')}</TableHead>
+                <TableHead>{t('reports.soldQty')}</TableHead>
+                <TableHead>{t('chart.revenue')}</TableHead>
                 {showCostAndProfit ? (
                   <>
-                    <TableHead>Себестоимость</TableHead>
-                    <TableHead>Прибыль</TableHead>
+                    <TableHead>{t('field.cost')}</TableHead>
+                    <TableHead>{t('chart.profit')}</TableHead>
                   </>
                 ) : null}
               </TableRow>

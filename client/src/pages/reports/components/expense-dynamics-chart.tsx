@@ -1,19 +1,20 @@
-import { format } from 'date-fns'
-import { ru } from 'date-fns/locale'
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { EmptyState } from '@/components/common/empty-state'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { formatMoney, formatNumber } from '@/lib/format'
+import { formatChartDate, formatChartDateFull, formatMoney, formatNumber } from '@/lib/format'
+import { useT } from '@/lib/i18n'
 
 export function ExpenseDynamicsChart({ data }: { data: { date: string; amount: number }[] }) {
+  const t = useT()
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Динамика расходов</CardTitle>
+        <CardTitle>{t('reports.expenseDynamics')}</CardTitle>
       </CardHeader>
       <CardContent>
         {data.length === 0 ? (
-          <EmptyState message="Расходов за этот период нет" />
+          <EmptyState message={t('reports.expensesEmpty')} />
         ) : (
           <div className="h-[240px] w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -21,7 +22,7 @@ export function ExpenseDynamicsChart({ data }: { data: { date: string; amount: n
                 <CartesianGrid stroke="var(--line)" vertical={false} />
                 <XAxis
                   dataKey="date"
-                  tickFormatter={(value: string) => format(new Date(value), 'd MMM', { locale: ru })}
+                  tickFormatter={(value: string) => formatChartDate(value)}
                   tick={{ fill: 'var(--muted)', fontSize: 12 }}
                   axisLine={{ stroke: 'var(--line)' }}
                   tickLine={false}
@@ -34,8 +35,8 @@ export function ExpenseDynamicsChart({ data }: { data: { date: string; amount: n
                   width={70}
                 />
                 <Tooltip
-                  labelFormatter={(value) => format(new Date(String(value)), 'd MMMM yyyy', { locale: ru })}
-                  formatter={(value) => [formatMoney(Number(value)), 'Расходы']}
+                  labelFormatter={(value) => formatChartDateFull(String(value))}
+                  formatter={(value) => [formatMoney(Number(value)), t('reports.expenses')]}
                   contentStyle={{
                     background: 'var(--surface)',
                     border: '1px solid var(--line)',

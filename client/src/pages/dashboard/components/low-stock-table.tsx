@@ -2,25 +2,28 @@ import { EmptyState } from '@/components/common/empty-state'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import type { LowStockItem } from '@/api/types'
+import { useT } from '@/lib/i18n'
 
 export function LowStockTable({ items }: { items: LowStockItem[] }) {
+  const t = useT()
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Товары с низким остатком</CardTitle>
+        <CardTitle>{t('dashboard.lowStock')}</CardTitle>
       </CardHeader>
       <CardContent className="p-0">
         {items.length === 0 ? (
-          <EmptyState message="Все товары в достаточном количестве" />
+          <EmptyState message={t('dashboard.lowStockEmpty')} />
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead />
-                <TableHead>Товар</TableHead>
-                <TableHead>Вариант</TableHead>
-                <TableHead>Остаток</TableHead>
-                <TableHead>Мин.</TableHead>
+                <TableHead>{t('field.product')}</TableHead>
+                <TableHead>{t('field.variant')}</TableHead>
+                <TableHead>{t('field.stock')}</TableHead>
+                <TableHead>{t('field.minShort')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

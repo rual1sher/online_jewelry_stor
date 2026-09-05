@@ -1,7 +1,8 @@
 import type { OrderDetail } from '@/api/types'
 import { MoneyText } from '@/components/common/money-text'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { DELIVERY_PAYER_LABELS } from '@/lib/constants'
+import { DELIVERY_PAYER_KEY } from '@/lib/constants'
+import { useT } from '@/lib/i18n'
 
 function Row({ label, amount, tone }: { label: string; amount: number; tone?: 'default' | 'success' | 'danger' }) {
   return (
@@ -13,24 +14,25 @@ function Row({ label, amount, tone }: { label: string; amount: number; tone?: 'd
 }
 
 export function OrderFinancials({ order }: { order: OrderDetail }) {
+  const t = useT()
   const f = order.financials
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Финансовый результат</CardTitle>
+        <CardTitle>{t('orders.financials')}</CardTitle>
       </CardHeader>
       <CardContent className="divide-y divide-line">
-        <Row label="Выручка" amount={f.revenue} />
-        <Row label="Себестоимость проданного" amount={f.cogs} />
-        <Row label="Валовая прибыль" amount={f.grossProfit} />
+        <Row label={t('chart.revenue')} amount={f.revenue} />
+        <Row label={t('orders.cogs')} amount={f.cogs} />
+        <Row label={t('orders.grossProfit')} amount={f.grossProfit} />
         <Row
-          label={`Доставка (${DELIVERY_PAYER_LABELS[order.deliveryPaidBy]})`}
+          label={t('orders.deliveryBy', { payer: t(DELIVERY_PAYER_KEY[order.deliveryPaidBy]) })}
           amount={order.deliveryPrice}
         />
         {f.storeDeliveryCost > 0 ? (
-          <Row label="Расход на доставку (магазин)" amount={f.storeDeliveryCost} tone="danger" />
+          <Row label={t('orders.storeDeliveryCost')} amount={f.storeDeliveryCost} tone="danger" />
         ) : null}
-        <Row label="Чистая прибыль" amount={f.netProfit} tone="success" />
+        <Row label={t('orders.netProfit')} amount={f.netProfit} tone="success" />
       </CardContent>
     </Card>
   )

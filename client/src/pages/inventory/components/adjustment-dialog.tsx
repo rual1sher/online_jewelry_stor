@@ -17,7 +17,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-import { ADJUSTMENT_REASON_LABELS } from '@/lib/constants'
+import { ADJUSTMENT_REASONS, ADJUSTMENT_REASON_KEY } from '@/lib/constants'
+import { useT } from '@/lib/i18n'
 
 const schema = z.object({
   actualQuantity: z.coerce.number().int().min(0),
@@ -43,6 +44,7 @@ export function AdjustmentDialog({
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
+  const t = useT()
   const createAdjustment = useCreateAdjustment()
 
   const {
@@ -69,10 +71,10 @@ export function AdjustmentDialog({
   const onSubmit = handleSubmit(async (values) => {
     try {
       await createAdjustment.mutateAsync({ variantId: variant.id, ...values })
-      toast.success('Остаток скорректирован')
+      toast.success(t('inventory.adjustmentDone'))
       onOpenChange(false)
     } catch (error) {
-      toast.error(apiErrorMessage(error, 'Не удалось скорректировать остаток'))
+      toast.error(apiErrorMessage(error, t('inventory.adjustmentFailed')))
     }
   })
 
@@ -80,48 +82,47 @@ export function AdjustmentDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[420px]">
         <DialogHeader>
-          <DialogTitle>Корректировка остатка</DialogTitle>
+          <DialogTitle>{t('inventory.adjustmentTitle')}</DialogTitle>
         </DialogHeader>
         <p className="mb-2 text-[13px] text-muted">
-          {variant.name} · в системе {variant.currentStock} шт.
+          {t('inventory.adjustmentSubtitle', { name: variant.name, stock: variant.currentStock })}
         </p>
         <form onSubmit={onSubmit} className="flex flex-col gap-3">
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="actualQuantity">Фактический остаток</Label>
+            <Label htmlFor="actualQuantity">{t('inventory.actualQuantity')}</Label>
             <Input id="actualQuantity" type="number" {...register('actualQuantity')} />
             {errors.actualQuantity ? (
               <p className="text-[12px] text-danger">{errors.actualQuantity.message}</p>
             ) : null}
           </div>
           <p className={`text-[13px] font-medium ${diff < 0 ? 'text-danger' : diff > 0 ? 'text-success' : 'text-muted'}`}>
-            Разница: {diff > 0 ? '+' : ''}
-            {diff} шт.
+            {t('inventory.difference', { diff: `${diff > 0 ? '+' : ''}${diff}` })}
           </p>
           <div className="flex flex-col gap-1.5">
-            <Label>Причина</Label>
+            <Label>{t('inventory.reason')}</Label>
             <Select value={watch('reason')} onValueChange={(v) => setValue('reason', v as FormValues['reason'])}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {Object.entries(ADJUSTMENT_REASON_LABELS).map(([key, label]) => (
-                  <SelectItem key={key} value={key}>
-                    {label}
+                {ADJUSTMENT_REASONS.map((reason) => (
+                  <SelectItem key={reason} value={reason}>
+                    {t(ADJUSTMENT_REASON_KEY[reason])}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="adjustment-comment">Комментарий</Label>
+            <Label htmlFor="adjustment-comment">{t('field.comment')}</Label>
             <Textarea id="adjustment-comment" rows={2} {...register('comment')} />
           </div>
           <DialogFooter>
             <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
-              Отмена
+              {t('common.cancel')}
             </Button>
             <Button type="submit" disabled={createAdjustment.isPending || diff === 0}>
-              {createAdjustment.isPending ? 'Сохраняем…' : 'Сохранить'}
+              {createAdjustment.isPending ? t('common.saving') : t('common.save')}
             </Button>
           </DialogFooter>
         </form>

@@ -19,13 +19,14 @@ import { Label } from '@/components/ui/label'
 import { PasswordInput } from '@/components/ui/password-input'
 import { PHONE_PREFIX, PHONE_REGEX, PhoneInput } from '@/components/ui/phone-input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { USER_ROLE_LABELS } from '@/lib/constants'
+import { USER_ROLES, USER_ROLE_KEY } from '@/lib/constants'
+import { useT, type TKey } from '@/lib/i18n'
 
 const schema = z.object({
   phone: z.string().optional(),
-  name: z.string().min(1, 'Укажите имя'),
+  name: z.string().min(1, 'settings.nameRequired'),
   role: z.enum(['OWNER', 'MANAGER']),
-  password: z.string().min(6, 'Минимум 6 символов').optional().or(z.literal('')),
+  password: z.string().min(6, 'settings.passwordMin').optional().or(z.literal('')),
 })
 
 type FormValues = z.infer<typeof schema>
@@ -39,6 +40,7 @@ export function UserFormDialog({
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
+  const t = useT()
   const isEdit = Boolean(user)
   const registerUser = useRegisterUser()
   const updateUser = useUpdateUser()
@@ -70,14 +72,14 @@ export function UserFormDialog({
           role: values.role,
           password: values.password || undefined,
         })
-        toast.success('Пользователь обновлён')
+        toast.success(t('settings.userUpdated'))
       } else {
         if (!values.phone || !PHONE_REGEX.test(values.phone)) {
-          toast.error('Введите номер телефона полностью')
+          toast.error(t('settings.phoneRequired'))
           return
         }
         if (!values.password || values.password.length < 6) {
-          toast.error('Пароль должен быть не короче 6 символов')
+          toast.error(t('settings.passwordTooShort'))
           return
         }
         await registerUser.mutateAsync({
@@ -86,11 +88,11 @@ export function UserFormDialog({
           name: values.name,
           role: values.role,
         })
-        toast.success('Пользователь создан')
+        toast.success(t('settings.userCreated'))
       }
       onOpenChange(false)
     } catch (error) {
-      toast.error(apiErrorMessage(error, 'Не удалось сохранить пользователя'))
+      toast.error(apiErrorMessage(error, t('settings.userSaveFailed')))
     }
   })
 
@@ -100,50 +102,56 @@ export function UserFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[400px]">
         <DialogHeader>
-          <DialogTitle>{isEdit ? 'Редактировать пользователя' : 'Новый пользователь'}</DialogTitle>
+          <DialogTitle>{isEdit ? t('settings.editUser') : t('settings.newUser')}</DialogTitle>
         </DialogHeader>
         <form onSubmit={onSubmit} className="flex flex-col gap-3">
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="user-phone">Телефон</Label>
+            <Label htmlFor="user-phone">{t('field.phone')}</Label>
             <PhoneInput
               id="user-phone"
               disabled={isEdit}
               value={watch('phone') || PHONE_PREFIX}
               onChange={(v) => setValue('phone', v)}
             />
-            {errors.phone ? <p className="text-[12px] text-danger">{errors.phone.message}</p> : null}
+            {errors.phone ? (
+              <p className="text-[12px] text-danger">{t(errors.phone.message as TKey)}</p>
+            ) : null}
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="user-name">Имя</Label>
+            <Label htmlFor="user-name">{t('settings.userName')}</Label>
             <Input id="user-name" {...register('name')} />
-            {errors.name ? <p className="text-[12px] text-danger">{errors.name.message}</p> : null}
+            {errors.name ? (
+              <p className="text-[12px] text-danger">{t(errors.name.message as TKey)}</p>
+            ) : null}
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label>Роль</Label>
+            <Label>{t('field.role')}</Label>
             <Select value={watch('role')} onValueChange={(v) => setValue('role', v as 'OWNER' | 'MANAGER')}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {Object.entries(USER_ROLE_LABELS).map(([key, label]) => (
-                  <SelectItem key={key} value={key}>
-                    {label}
+                {USER_ROLES.map((role) => (
+                  <SelectItem key={role} value={role}>
+                    {t(USER_ROLE_KEY[role])}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="user-password">{isEdit ? 'Новый пароль (необязательно)' : 'Пароль'}</Label>
+            <Label htmlFor="user-password">{isEdit ? t('settings.newPassword') : t('field.password')}</Label>
             <PasswordInput id="user-password" {...register('password')} />
-            {errors.password ? <p className="text-[12px] text-danger">{errors.password.message}</p> : null}
+            {errors.password ? (
+              <p className="text-[12px] text-danger">{t(errors.password.message as TKey)}</p>
+            ) : null}
           </div>
           <DialogFooter>
             <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
-              Отмена
+              {t('common.cancel')}
             </Button>
             <Button type="submit" disabled={pending}>
-              {pending ? 'Сохраняем…' : 'Сохранить'}
+              {pending ? t('common.saving') : t('common.save')}
             </Button>
           </DialogFooter>
         </form>

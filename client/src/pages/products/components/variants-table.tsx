@@ -15,7 +15,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { STOCK_STATUS_LABELS, STOCK_STATUS_TONE } from '@/lib/constants'
+import { STOCK_STATUS_KEY, STOCK_STATUS_TONE } from '@/lib/constants'
+import { useT } from '@/lib/i18n'
 import { AdjustmentDialog } from '@/pages/inventory/components/adjustment-dialog'
 import { ReceiptDialog } from '@/pages/inventory/components/receipt-dialog'
 import { VariantDialog } from './variant-dialog'
@@ -35,6 +36,7 @@ export function VariantsTable({
   variants: ProductVariant[]
   onSelectHistory: (variantId: string) => void
 }) {
+  const t = useT()
   const [editVariant, setEditVariant] = useState<ProductVariant | null>(null)
   const [addOpen, setAddOpen] = useState(false)
   const [receiptVariant, setReceiptVariant] = useState<ProductVariant | null>(null)
@@ -46,18 +48,18 @@ export function VariantsTable({
     <div>
       <div className="mb-3 flex justify-end">
         <Button variant="secondary" size="sm" onClick={() => setAddOpen(true)}>
-          Добавить вариант
+          {t('variant.add')}
         </Button>
       </div>
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Вариант</TableHead>
-            <TableHead>Остаток</TableHead>
-            <TableHead>Себестоимость</TableHead>
-            <TableHead>Цена продажи</TableHead>
-            <TableHead>Мин. остаток</TableHead>
-            <TableHead>Статус</TableHead>
+            <TableHead>{t('field.variant')}</TableHead>
+            <TableHead>{t('field.stock')}</TableHead>
+            <TableHead>{t('field.cost')}</TableHead>
+            <TableHead>{t('field.sellingPrice')}</TableHead>
+            <TableHead>{t('field.minStock')}</TableHead>
+            <TableHead>{t('field.status')}</TableHead>
             <TableHead />
           </TableRow>
         </TableHeader>
@@ -80,9 +82,9 @@ export function VariantsTable({
                 <TableCell className="tabular-nums text-muted">{variant.minStock}</TableCell>
                 <TableCell>
                   {variant.isArchived ? (
-                    <StatusBadge label="В архиве" tone="neutral" />
+                    <StatusBadge label={t('productStatus.ARCHIVED')} tone="neutral" />
                   ) : (
-                    <StatusBadge label={STOCK_STATUS_LABELS[status]} tone={STOCK_STATUS_TONE[status]} />
+                    <StatusBadge label={t(STOCK_STATUS_KEY[status])} tone={STOCK_STATUS_TONE[status]} />
                   )}
                 </TableCell>
                 <TableCell>
@@ -94,19 +96,19 @@ export function VariantsTable({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => setEditVariant(variant)}>
-                        Редактировать
+                        {t('common.edit')}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => setReceiptVariant(variant)}>
-                        Оформить приход
+                        {t('variant.receipt')}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => setAdjustmentVariant(variant)}>
-                        Скорректировать остаток
+                        {t('variant.adjust')}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => onSelectHistory(variant.id)}>
-                        История движений
+                        {t('variant.history')}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => setArchiveTarget(variant)}>
-                        {variant.isArchived ? 'Вернуть из архива' : 'Архивировать'}
+                        {variant.isArchived ? t('common.unarchive') : t('common.archive')}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -144,20 +146,22 @@ export function VariantsTable({
         <ConfirmDialog
           open={Boolean(archiveTarget)}
           onOpenChange={(open) => !open && setArchiveTarget(null)}
-          title={archiveTarget.isArchived ? 'Вернуть вариант из архива?' : 'Архивировать вариант?'}
-          description={
-            archiveTarget.isArchived
-              ? 'Вариант снова станет доступен для продажи.'
-              : 'Вариант пропадёт из продажи и активного склада, но останется в истории.'
+          title={
+            archiveTarget.isArchived ? t('variant.unarchiveTitle') : t('variant.archiveTitle')
           }
-          confirmLabel={archiveTarget.isArchived ? 'Вернуть' : 'Архивировать'}
+          description={
+            archiveTarget.isArchived ? t('variant.unarchiveText') : t('variant.archiveText')
+          }
+          confirmLabel={archiveTarget.isArchived ? t('common.restore') : t('common.archive')}
           onConfirm={async () => {
             try {
               await setVariantArchived.mutateAsync({
                 variantId: archiveTarget.id,
                 isArchived: !archiveTarget.isArchived,
               })
-              toast.success(archiveTarget.isArchived ? 'Вариант возвращён из архива' : 'Вариант архивирован')
+              toast.success(
+                archiveTarget.isArchived ? t('variant.unarchived') : t('variant.archived'),
+              )
             } catch (error) {
               toast.error(apiErrorMessage(error))
             }

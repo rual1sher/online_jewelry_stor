@@ -26,11 +26,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useLocalDateRange } from '@/lib/dateRange'
 import { formatDate } from '@/lib/format'
+import { useT } from '@/lib/i18n'
 import { ExpenseFormDialog } from './components/expense-form-dialog'
 
 const LIMIT = 20
 
 export function ExpensesPage() {
+  const t = useT()
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [categoryId, setCategoryId] = useState<string | undefined>()
@@ -52,9 +54,9 @@ export function ExpensesPage() {
 
   return (
     <div>
-      <title>Расходы — Ювелир</title>
+      <title>{`${t('expenses.title')} — ${t('common.appName')}`}</title>
       <PageHeader
-        title="Расходы"
+        title={t('expenses.title')}
         actions={
           <Button
             onClick={() => {
@@ -62,7 +64,7 @@ export function ExpensesPage() {
               setFormOpen(true)
             }}
           >
-            <Plus className="size-4" /> Добавить расход
+            <Plus className="size-4" /> {t('expenses.add')}
           </Button>
         }
       />
@@ -72,7 +74,7 @@ export function ExpensesPage() {
           <div className="relative">
             <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted" />
             <Input
-              placeholder="Поиск по названию"
+              placeholder={t('expenses.search')}
               className="w-[220px] pl-8"
               value={search}
               onChange={(e) => {
@@ -89,10 +91,10 @@ export function ExpensesPage() {
             }}
           >
             <SelectTrigger className="w-[190px]">
-              <SelectValue placeholder="Все категории" />
+              <SelectValue placeholder={t('common.allCategories')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Все категории</SelectItem>
+              <SelectItem value="all">{t('common.allCategories')}</SelectItem>
               {categories?.map((c) => (
                 <SelectItem key={c.id} value={c.id}>
                   {c.name}
@@ -112,7 +114,11 @@ export function ExpensesPage() {
 
       {data ? (
         <div className="mb-4">
-          <MetricCard label="Сумма расходов за период" value={<MoneyText amount={data.totalAmount} />} active />
+          <MetricCard
+            label={t('expenses.periodTotal')}
+            value={<MoneyText amount={data.totalAmount} />}
+            active
+          />
         </div>
       ) : null}
 
@@ -120,17 +126,17 @@ export function ExpensesPage() {
         {isLoading || !data ? (
           <Loading />
         ) : data.items.length === 0 ? (
-          <EmptyState message="Расходов за этот период пока нет" />
+          <EmptyState message={t('expenses.empty')} />
         ) : (
           <>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Название</TableHead>
-                  <TableHead>Категория</TableHead>
-                  <TableHead>Сумма</TableHead>
-                  <TableHead>Дата</TableHead>
-                  <TableHead>Комментарий</TableHead>
+                  <TableHead>{t('field.name')}</TableHead>
+                  <TableHead>{t('field.category')}</TableHead>
+                  <TableHead>{t('field.amount')}</TableHead>
+                  <TableHead>{t('field.date')}</TableHead>
+                  <TableHead>{t('field.comment')}</TableHead>
                   <TableHead />
                 </TableRow>
               </TableHeader>
@@ -158,9 +164,11 @@ export function ExpensesPage() {
                               setFormOpen(true)
                             }}
                           >
-                            Редактировать
+                            {t('common.edit')}
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setDeleteTarget(expense)}>Удалить</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setDeleteTarget(expense)}>
+                            {t('common.delete')}
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -177,15 +185,15 @@ export function ExpensesPage() {
       <ConfirmDialog
         open={Boolean(deleteTarget)}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
-        title="Удалить расход?"
-        description="Это действие нельзя отменить."
-        confirmLabel="Удалить"
+        title={t('expenses.deleteTitle')}
+        description={t('common.undoable')}
+        confirmLabel={t('common.delete')}
         danger
         onConfirm={async () => {
           if (!deleteTarget) return
           try {
             await deleteExpense.mutateAsync(deleteTarget.id)
-            toast.success('Расход удалён')
+            toast.success(t('expenses.deleted'))
           } catch (error) {
             toast.error(apiErrorMessage(error))
           }

@@ -6,12 +6,14 @@ import { Loading } from '@/components/common/loading'
 import { Pagination } from '@/components/common/pagination'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { ADJUSTMENT_REASON_LABELS, STOCK_MOVEMENT_LABELS } from '@/lib/constants'
+import { ADJUSTMENT_REASON_KEY, STOCK_MOVEMENT_KEY, STOCK_MOVEMENT_TYPES } from '@/lib/constants'
 import { formatDateTime } from '@/lib/format'
+import { useT } from '@/lib/i18n'
 
 const LIMIT = 20
 
 export function MovementsTable() {
+  const t = useT()
   const [page, setPage] = useState(1)
   const [type, setType] = useState<StockMovementType | undefined>()
   const { data, isLoading } = useMovements({ page, limit: LIMIT, type })
@@ -27,13 +29,13 @@ export function MovementsTable() {
           }}
         >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Все типы" />
+            <SelectValue placeholder={t('common.allTypes')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Все типы</SelectItem>
-            {Object.entries(STOCK_MOVEMENT_LABELS).map(([key, label]) => (
-              <SelectItem key={key} value={key}>
-                {label}
+            <SelectItem value="all">{t('common.allTypes')}</SelectItem>
+            {STOCK_MOVEMENT_TYPES.map((type) => (
+              <SelectItem key={type} value={type}>
+                {t(STOCK_MOVEMENT_KEY[type])}
               </SelectItem>
             ))}
           </SelectContent>
@@ -42,18 +44,18 @@ export function MovementsTable() {
       {isLoading || !data ? (
         <Loading />
       ) : data.items.length === 0 ? (
-        <EmptyState message="Движений по складу пока нет" />
+        <EmptyState message={t('inventory.movementsEmpty')} />
       ) : (
         <>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Дата</TableHead>
-                <TableHead>Товар</TableHead>
-                <TableHead>Тип</TableHead>
-                <TableHead>Изменение</TableHead>
-                <TableHead>Остаток после</TableHead>
-                <TableHead>Комментарий</TableHead>
+                <TableHead>{t('field.date')}</TableHead>
+                <TableHead>{t('field.product')}</TableHead>
+                <TableHead>{t('field.type')}</TableHead>
+                <TableHead>{t('field.change')}</TableHead>
+                <TableHead>{t('field.stockAfter')}</TableHead>
+                <TableHead>{t('field.comment')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -64,7 +66,7 @@ export function MovementsTable() {
                     {movement.variant?.product.name}
                     <div className="text-[12px] text-muted">{movement.variant?.name}</div>
                   </TableCell>
-                  <TableCell>{STOCK_MOVEMENT_LABELS[movement.type]}</TableCell>
+                  <TableCell>{t(STOCK_MOVEMENT_KEY[movement.type])}</TableCell>
                   <TableCell
                     className={`tabular-nums font-medium ${movement.quantityChange < 0 ? 'text-danger' : 'text-success'}`}
                   >
@@ -73,7 +75,7 @@ export function MovementsTable() {
                   </TableCell>
                   <TableCell className="tabular-nums">{movement.stockAfter}</TableCell>
                   <TableCell className="text-muted">
-                    {movement.adjustmentReason ? ADJUSTMENT_REASON_LABELS[movement.adjustmentReason] : null}
+                    {movement.adjustmentReason ? t(ADJUSTMENT_REASON_KEY[movement.adjustmentReason]) : null}
                     {movement.comment ? ` ${movement.comment}` : ''}
                   </TableCell>
                 </TableRow>

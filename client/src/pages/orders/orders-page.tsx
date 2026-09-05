@@ -13,18 +13,20 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import {
-  ORDER_STATUS_LABELS,
+  ORDER_STATUS_KEY,
   ORDER_STATUS_TONE,
-  PAYMENT_STATUS_LABELS,
+  PAYMENT_STATUS_KEY,
   PAYMENT_STATUS_TONE,
 } from '@/lib/constants'
-import { formatDateTime } from '@/lib/format'
+import { formatDateTime, formatNumber } from '@/lib/format'
+import { useT } from '@/lib/i18n'
 import { OrderFormDialog } from './components/order-form-dialog'
 import { OrdersFilters } from './components/orders-filters'
 
 const LIMIT = 20
 
 export function OrdersPage() {
+  const t = useT()
   const navigate = useNavigate()
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
@@ -42,12 +44,12 @@ export function OrdersPage() {
 
   return (
     <div>
-      <title>Заказы — Ювелир</title>
+      <title>{`${t('orders.title')} — ${t('common.appName')}`}</title>
       <PageHeader
-        title="Заказы"
+        title={t('orders.title')}
         actions={
           <Button onClick={() => setCreateOpen(true)}>
-            <Plus className="size-4" /> Новый заказ
+            <Plus className="size-4" /> {t('orders.new')}
           </Button>
         }
       />
@@ -76,20 +78,20 @@ export function OrdersPage() {
         {isLoading || !data ? (
           <Loading />
         ) : data.items.length === 0 ? (
-          <EmptyState message="Заказов пока нет — они появятся здесь после первой продажи" />
+          <EmptyState message={t('dashboard.ordersEmpty')} />
         ) : (
           <>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>№ заказа</TableHead>
-                  <TableHead>Товары</TableHead>
-                  <TableHead>Сумма товаров</TableHead>
-                  <TableHead>Доставка</TableHead>
-                  <TableHead>Общая сумма</TableHead>
-                  <TableHead>Оплата</TableHead>
-                  <TableHead>Статус</TableHead>
-                  <TableHead>Дата</TableHead>
+                  <TableHead>{t('orders.number')}</TableHead>
+                  <TableHead>{t('field.products')}</TableHead>
+                  <TableHead>{t('orders.itemsAmount')}</TableHead>
+                  <TableHead>{t('field.delivery')}</TableHead>
+                  <TableHead>{t('orders.totalAmount')}</TableHead>
+                  <TableHead>{t('field.payment')}</TableHead>
+                  <TableHead>{t('field.status')}</TableHead>
+                  <TableHead>{t('field.date')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -105,20 +107,20 @@ export function OrdersPage() {
                       <MoneyText amount={order.itemsAmount} className="text-[13px]" />
                     </TableCell>
                     <TableCell className="tabular-nums text-muted">
-                      {order.deliveryPrice > 0 ? `+${order.deliveryPrice.toLocaleString('ru-RU')}` : '—'}
+                      {order.deliveryPrice > 0 ? `+${formatNumber(order.deliveryPrice)}` : '—'}
                     </TableCell>
                     <TableCell>
                       <MoneyText amount={order.totalAmount} className="text-[13px]" />
                     </TableCell>
                     <TableCell>
                       <StatusBadge
-                        label={PAYMENT_STATUS_LABELS[order.paymentStatus]}
+                        label={t(PAYMENT_STATUS_KEY[order.paymentStatus])}
                         tone={PAYMENT_STATUS_TONE[order.paymentStatus]}
                       />
                     </TableCell>
                     <TableCell>
                       <StatusBadge
-                        label={ORDER_STATUS_LABELS[order.status]}
+                        label={t(ORDER_STATUS_KEY[order.status])}
                         tone={ORDER_STATUS_TONE[order.status]}
                       />
                     </TableCell>

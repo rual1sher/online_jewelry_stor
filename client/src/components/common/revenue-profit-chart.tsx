@@ -1,5 +1,3 @@
-import { format } from 'date-fns'
-import { ru } from 'date-fns/locale'
 import {
   CartesianGrid,
   Line,
@@ -11,7 +9,8 @@ import {
 } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { EmptyState } from '@/components/common/empty-state'
-import { formatMoney, formatNumber } from '@/lib/format'
+import { formatChartDate, formatChartDateFull, formatMoney, formatNumber } from '@/lib/format'
+import { useT } from '@/lib/i18n'
 
 interface ChartPoint {
   date: string
@@ -20,14 +19,16 @@ interface ChartPoint {
 }
 
 export function RevenueProfitChart({ data }: { data: ChartPoint[] }) {
+  const t = useT()
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Выручка и чистая прибыль</CardTitle>
+        <CardTitle>{t('chart.revenueProfit')}</CardTitle>
       </CardHeader>
       <CardContent>
         {data.length === 0 ? (
-          <EmptyState message="Пока нет данных за выбранный период" />
+          <EmptyState message={t('chart.noData')} />
         ) : (
           <div className="h-[280px] w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -35,7 +36,7 @@ export function RevenueProfitChart({ data }: { data: ChartPoint[] }) {
                 <CartesianGrid stroke="var(--line)" vertical={false} />
                 <XAxis
                   dataKey="date"
-                  tickFormatter={(value: string) => format(new Date(value), 'd MMM', { locale: ru })}
+                  tickFormatter={(value: string) => formatChartDate(value)}
                   tick={{ fill: 'var(--muted)', fontSize: 12 }}
                   axisLine={{ stroke: 'var(--line)' }}
                   tickLine={false}
@@ -48,10 +49,10 @@ export function RevenueProfitChart({ data }: { data: ChartPoint[] }) {
                   width={70}
                 />
                 <Tooltip
-                  labelFormatter={(value) => format(new Date(String(value)), 'd MMMM yyyy', { locale: ru })}
+                  labelFormatter={(value) => formatChartDateFull(String(value))}
                   formatter={(value, name) => [
                     formatMoney(Number(value)),
-                    name === 'revenue' ? 'Выручка' : 'Прибыль',
+                    name === 'revenue' ? t('chart.revenue') : t('chart.profit'),
                   ]}
                   contentStyle={{
                     background: 'var(--surface)',

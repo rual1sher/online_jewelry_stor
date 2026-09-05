@@ -17,10 +17,11 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { MoneyInput } from '@/components/ui/money-input'
+import { useT, type TKey } from '@/lib/i18n'
 
 const schema = z.object({
-  name: z.string().min(1, 'Укажите название'),
-  sku: z.string().min(1, 'Укажите код'),
+  name: z.string().min(1, 'validation.name'),
+  sku: z.string().min(1, 'validation.code'),
   sellingPrice: z.number().int().min(0),
   minStock: z.coerce.number().int().min(0),
 })
@@ -39,6 +40,7 @@ export function VariantDialog({
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
+  const t = useT()
   const addVariant = useAddVariant()
   const updateVariant = useUpdateVariant(productId)
   const isEdit = Boolean(variant)
@@ -71,14 +73,14 @@ export function VariantDialog({
     try {
       if (variant) {
         await updateVariant.mutateAsync({ variantId: variant.id, ...values })
-        toast.success('Вариант обновлён')
+        toast.success(t('variant.updated'))
       } else {
         await addVariant.mutateAsync({ productId, ...values })
-        toast.success('Вариант добавлен')
+        toast.success(t('variant.created'))
       }
       onOpenChange(false)
     } catch (error) {
-      toast.error(apiErrorMessage(error, 'Не удалось сохранить вариант'))
+      toast.error(apiErrorMessage(error, t('variant.saveFailed')))
     }
   })
 
@@ -88,35 +90,39 @@ export function VariantDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[420px]">
         <DialogHeader>
-          <DialogTitle>{isEdit ? 'Редактировать вариант' : 'Новый вариант'}</DialogTitle>
+          <DialogTitle>{isEdit ? t('variant.editTitle') : t('variant.newTitle')}</DialogTitle>
         </DialogHeader>
         <form onSubmit={onSubmit} className="flex flex-col gap-3">
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="variant-name">Название / размер</Label>
+            <Label htmlFor="variant-name">{t('variant.nameSize')}</Label>
             <Input id="variant-name" {...register('name')} />
-            {errors.name ? <p className="text-[12px] text-danger">{errors.name.message}</p> : null}
+            {errors.name ? (
+              <p className="text-[12px] text-danger">{t(errors.name.message as TKey)}</p>
+            ) : null}
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="variant-sku">Код товара</Label>
+            <Label htmlFor="variant-sku">{t('variant.code')}</Label>
             <Input id="variant-sku" {...register('sku')} />
-            {errors.sku ? <p className="text-[12px] text-danger">{errors.sku.message}</p> : null}
+            {errors.sku ? (
+              <p className="text-[12px] text-danger">{t(errors.sku.message as TKey)}</p>
+            ) : null}
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="variant-price">Цена продажи</Label>
+              <Label htmlFor="variant-price">{t('field.sellingPrice')}</Label>
               <MoneyInput id="variant-price" value={watch('sellingPrice')} onChange={(v) => setValue('sellingPrice', v)} />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="variant-min">Мин. остаток</Label>
+              <Label htmlFor="variant-min">{t('field.minStock')}</Label>
               <Input id="variant-min" type="number" {...register('minStock')} />
             </div>
           </div>
           <DialogFooter>
             <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
-              Отмена
+              {t('common.cancel')}
             </Button>
             <Button type="submit" disabled={pending}>
-              {pending ? 'Сохраняем…' : 'Сохранить'}
+              {pending ? t('common.saving') : t('common.save')}
             </Button>
           </DialogFooter>
         </form>

@@ -2,10 +2,12 @@ import { Plus } from 'lucide-react'
 import { useFieldArray, useFormContext } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import { formatMoney } from '@/lib/format'
+import { useT } from '@/lib/i18n'
 import { emptyOrderItem, type OrderFormValues } from './order-form-schema'
 import { OrderItemRow } from './order-item-row'
 
 export function OrderItemsEditor() {
+  const t = useT()
   const { control, watch } = useFormContext<OrderFormValues>()
   const { fields, append, remove } = useFieldArray({ control, name: 'items' })
   const items = watch('items')
@@ -22,7 +24,7 @@ export function OrderItemsEditor() {
         className="self-start"
         onClick={() => append(emptyOrderItem)}
       >
-        <Plus className="size-4" /> Добавить товар
+        <Plus className="size-4" /> {t('orders.addItem')}
       </Button>
       <ItemsTotal items={items} />
     </div>
@@ -30,6 +32,7 @@ export function OrderItemsEditor() {
 }
 
 function ItemsTotal({ items }: { items: OrderFormValues['items'] }) {
+  const t = useT()
   const total = items.reduce((sum, item) => {
     const price = Number(item.priceAtSale) || 0
     return sum + price * (Number(item.quantity) || 0)
@@ -37,7 +40,7 @@ function ItemsTotal({ items }: { items: OrderFormValues['items'] }) {
 
   return (
     <div className="text-right text-[13px] text-muted">
-      Сумма товаров: <span className="font-semibold text-ink">{formatMoney(total)}</span>
+      {t('orders.itemsTotal')} <span className="font-semibold text-ink">{formatMoney(total)}</span>
     </div>
   )
 }

@@ -17,10 +17,11 @@ import { Label } from '@/components/ui/label'
 import { MoneyInput } from '@/components/ui/money-input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-import { PAYMENT_METHOD_LABELS } from '@/lib/constants'
+import { PAYMENT_METHODS, PAYMENT_METHOD_KEY } from '@/lib/constants'
+import { useT, type TKey } from '@/lib/i18n'
 
 const schema = z.object({
-  amount: z.number().int().min(1, 'Сумма должна быть больше 0'),
+  amount: z.number().int().min(1, 'validation.amountPositive'),
   method: z.enum(['CASH', 'CARD', 'CLICK', 'PAYME', 'BANK_TRANSFER', 'OTHER']),
   comment: z.string().optional(),
 })
@@ -39,6 +40,7 @@ export function PaymentDialog({
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
+  const t = useT()
   const addPayment = useAddPayment()
   const refundPayment = useRefundPayment()
 
@@ -62,14 +64,14 @@ export function PaymentDialog({
     try {
       if (mode === 'payment') {
         await addPayment.mutateAsync({ id: orderId, ...values })
-        toast.success('Оплата добавлена')
+        toast.success(t('orders.paymentAdded'))
       } else {
         await refundPayment.mutateAsync({ id: orderId, ...values })
-        toast.success('Возврат оформлен')
+        toast.success(t('orders.refundDone'))
       }
       onOpenChange(false)
     } catch (error) {
-      toast.error(apiErrorMessage(error, 'Не удалось сохранить операцию'))
+      toast.error(apiErrorMessage(error, t('orders.paymentFailed')))
     }
   })
 
@@ -79,39 +81,45 @@ export function PaymentDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[380px]">
         <DialogHeader>
-          <DialogTitle>{mode === 'payment' ? 'Добавить оплату' : 'Оформить возврат'}</DialogTitle>
+          <DialogTitle>{mode === 'payment' ? t('orders.addPayment') : t('orders.refundTitle')}</DialogTitle>
         </DialogHeader>
         <form onSubmit={onSubmit} className="flex flex-col gap-3">
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="payment-amount">Сумма</Label>
+            <Label htmlFor="payment-amount">{t('field.amount')}</Label>
             <MoneyInput id="payment-amount" value={watch('amount')} onChange={(v) => setValue('amount', v)} />
-            {errors.amount ? <p className="text-[12px] text-danger">{errors.amount.message}</p> : null}
+            {errors.amount ? (
+              <p className="text-[12px] text-danger">{t(errors.amount.message as TKey)}</p>
+            ) : null}
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label>Способ оплаты</Label>
+            <Label>{t('orders.paymentMethod')}</Label>
             <Select value={watch('method')} onValueChange={(v) => setValue('method', v as FormValues['method'])}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {Object.entries(PAYMENT_METHOD_LABELS).map(([key, label]) => (
-                  <SelectItem key={key} value={key}>
-                    {label}
+                {PAYMENT_METHODS.map((method) => (
+                  <SelectItem key={method} value={method}>
+                    {t(PAYMENT_METHOD_KEY[method])}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="payment-comment">Комментарий</Label>
+            <Label htmlFor="payment-comment">{t('field.comment')}</Label>
             <Textarea id="payment-comment" rows={2} {...register('comment')} />
           </div>
           <DialogFooter>
             <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
-              Отмена
+              {t('common.cancel')}
             </Button>
             <Button type="submit" disabled={pending}>
-              {pending ? 'Сохраняем…' : mode === 'payment' ? 'Добавить' : 'Оформить возврат'}
+              {pending
+                ? t('common.saving')
+                : mode === 'payment'
+                  ? t('common.add')
+                  : t('orders.refundTitle')}
             </Button>
           </DialogFooter>
         </form>

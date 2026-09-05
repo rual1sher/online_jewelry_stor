@@ -12,13 +12,15 @@ import { StatusBadge } from '@/components/common/status-badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { PRODUCT_STATUS_LABELS, PRODUCT_STATUS_TONE } from '@/lib/constants'
+import { PRODUCT_STATUS_KEY, PRODUCT_STATUS_TONE } from '@/lib/constants'
+import { useT } from '@/lib/i18n'
 import { ProductFilters } from './components/product-filters'
 import { ProductFormDialog } from './components/product-form-dialog'
 
 const LIMIT = 20
 
 export function ProductsPage() {
+  const t = useT()
   const navigate = useNavigate()
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
@@ -36,12 +38,12 @@ export function ProductsPage() {
 
   return (
     <div>
-      <title>Товары — Ювелир</title>
+      <title>{`${t('products.title')} — ${t('common.appName')}`}</title>
       <PageHeader
-        title="Товары"
+        title={t('products.title')}
         actions={
           <Button onClick={() => setCreateOpen(true)}>
-            <Plus className="size-4" /> Добавить товар
+            <Plus className="size-4" /> {t('products.add')}
           </Button>
         }
       />
@@ -70,20 +72,20 @@ export function ProductsPage() {
         {isLoading || !data ? (
           <Loading />
         ) : data.items.length === 0 ? (
-          <EmptyState message="Товаров пока нет — добавьте первый товар, чтобы начать" />
+          <EmptyState message={t('products.empty')} />
         ) : (
           <>
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead />
-                  <TableHead>Название</TableHead>
-                  <TableHead>Категория</TableHead>
-                  <TableHead>SKU</TableHead>
-                  <TableHead>Варианты</TableHead>
-                  <TableHead>Остаток</TableHead>
-                  <TableHead>Цена от</TableHead>
-                  <TableHead>Статус</TableHead>
+                  <TableHead>{t('field.name')}</TableHead>
+                  <TableHead>{t('field.category')}</TableHead>
+                  <TableHead>{t('field.sku')}</TableHead>
+                  <TableHead>{t('products.variantsCount')}</TableHead>
+                  <TableHead>{t('field.stock')}</TableHead>
+                  <TableHead>{t('products.priceFrom')}</TableHead>
+                  <TableHead>{t('field.status')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -110,7 +112,7 @@ export function ProductsPage() {
                     </TableCell>
                     <TableCell>
                       <StatusBadge
-                        label={PRODUCT_STATUS_LABELS[product.status]}
+                        label={t(PRODUCT_STATUS_KEY[product.status])}
                         tone={PRODUCT_STATUS_TONE[product.status]}
                       />
                     </TableCell>

@@ -2,6 +2,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input'
 import { DATE_PRESETS, type DatePresetKey } from '@/lib/constants'
 import { toInputDate } from '@/lib/format'
+import { useT } from '@/lib/i18n'
 
 interface DateRangeFilterProps {
   preset: DatePresetKey
@@ -18,6 +19,7 @@ export function DateRangeFilter({
   onPresetChange,
   onCustomRangeChange,
 }: DateRangeFilterProps) {
+  const t = useT()
   const today = toInputDate(new Date())
 
   return (
@@ -29,7 +31,7 @@ export function DateRangeFilter({
         <SelectContent>
           {DATE_PRESETS.map((p) => (
             <SelectItem key={p.key} value={p.key}>
-              {p.label}
+              {t(p.labelKey)}
             </SelectItem>
           ))}
         </SelectContent>

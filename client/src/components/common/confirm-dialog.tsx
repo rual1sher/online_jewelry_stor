@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { useT } from '@/lib/i18n'
 import {
   Dialog,
   DialogContent,
@@ -24,10 +25,11 @@ export function ConfirmDialog({
   onOpenChange,
   title,
   description,
-  confirmLabel = 'Подтвердить',
+  confirmLabel,
   danger,
   onConfirm,
 }: ConfirmDialogProps) {
+  const t = useT()
   const [pending, setPending] = useState(false)
 
   const handleConfirm = async () => {
@@ -49,10 +51,10 @@ export function ConfirmDialog({
         </DialogHeader>
         <DialogFooter>
           <Button variant="secondary" onClick={() => onOpenChange(false)} disabled={pending}>
-            Отмена
+            {t('common.cancel')}
           </Button>
           <Button variant={danger ? 'danger' : 'primary'} onClick={handleConfirm} disabled={pending}>
-            {confirmLabel}
+            {confirmLabel ?? t('common.confirm')}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -8,11 +8,13 @@ import { StatusBadge } from '@/components/common/status-badge'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { STOCK_STATUS_LABELS, STOCK_STATUS_TONE } from '@/lib/constants'
+import { STOCK_STATUS_KEY, STOCK_STATUS_TONE } from '@/lib/constants'
+import { useT } from '@/lib/i18n'
 import { AdjustmentDialog } from './adjustment-dialog'
 import { ReceiptDialog } from './receipt-dialog'
 
 export function StockTable() {
+  const t = useT()
   const [includeArchived, setIncludeArchived] = useState(false)
   const { data, isLoading } = useStockTable(includeArchived)
   const [receiptTarget, setReceiptTarget] = useState<StockTableItem | null>(null)
@@ -23,23 +25,23 @@ export function StockTable() {
       <div className="mb-3 flex items-center justify-end gap-2">
         <label className="flex items-center gap-2 text-[13px] text-muted">
           <Switch checked={includeArchived} onCheckedChange={setIncludeArchived} />
-          Показывать архивные
+          {t('inventory.showArchived')}
         </label>
       </div>
       {isLoading || !data ? (
         <Loading />
       ) : data.items.length === 0 ? (
-        <EmptyState message="На складе пока нет товаров" />
+        <EmptyState message={t('inventory.stockEmpty')} />
       ) : (
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Товар</TableHead>
-              <TableHead>Вариант</TableHead>
-              <TableHead>Остаток</TableHead>
-              <TableHead>Себестоимость</TableHead>
-              <TableHead>Стоимость на складе</TableHead>
-              <TableHead>Статус</TableHead>
+              <TableHead>{t('field.product')}</TableHead>
+              <TableHead>{t('field.variant')}</TableHead>
+              <TableHead>{t('field.stock')}</TableHead>
+              <TableHead>{t('field.cost')}</TableHead>
+              <TableHead>{t('field.stockValue')}</TableHead>
+              <TableHead>{t('field.status')}</TableHead>
               <TableHead />
             </TableRow>
           </TableHeader>
@@ -56,15 +58,15 @@ export function StockTable() {
                   <MoneyText amount={item.stockValue} className="text-[13px]" />
                 </TableCell>
                 <TableCell>
-                  <StatusBadge label={STOCK_STATUS_LABELS[item.status]} tone={STOCK_STATUS_TONE[item.status]} />
+                  <StatusBadge label={t(STOCK_STATUS_KEY[item.status])} tone={STOCK_STATUS_TONE[item.status]} />
                 </TableCell>
                 <TableCell>
                   <div className="flex gap-1">
                     <Button variant="secondary" size="sm" onClick={() => setReceiptTarget(item)}>
-                      Приход
+                      {t('inventory.receipt')}
                     </Button>
                     <Button variant="secondary" size="sm" onClick={() => setAdjustmentTarget(item)}>
-                      Корректировка
+                      {t('inventory.adjustment')}
                     </Button>
                   </div>
                 </TableCell>

@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { useT } from '@/lib/i18n'
 
 type CategoryLike = Category | ExpenseCategory
 
@@ -40,6 +41,7 @@ export function CategoriesManager({
   onArchiveToggle,
   onDelete,
 }: CategoriesManagerProps) {
+  const t = useT()
   const [newName, setNewName] = useState('')
   const [renameTarget, setRenameTarget] = useState<CategoryLike | null>(null)
   const [renameValue, setRenameValue] = useState('')
@@ -59,24 +61,24 @@ export function CategoriesManager({
     <div className="flex flex-col gap-3">
       <div className="flex gap-2">
         <Input
-          placeholder="Название новой категории"
+          placeholder={t('settings.newCategory')}
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
         />
         <Button type="button" onClick={handleCreate}>
-          <Plus className="size-4" /> Добавить
+          <Plus className="size-4" /> {t('common.add')}
         </Button>
       </div>
 
       {!categories || categories.length === 0 ? (
-        <EmptyState message="Категорий пока нет" />
+        <EmptyState message={t('settings.categoriesEmpty')} />
       ) : (
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Название</TableHead>
-              <TableHead>Статус</TableHead>
+              <TableHead>{t('field.name')}</TableHead>
+              <TableHead>{t('field.status')}</TableHead>
               <TableHead />
             </TableRow>
           </TableHeader>
@@ -86,9 +88,9 @@ export function CategoriesManager({
                 <TableCell className="font-medium">{category.name}</TableCell>
                 <TableCell>
                   {category.isArchived ? (
-                    <StatusBadge label="В архиве" tone="neutral" />
+                    <StatusBadge label={t('productStatus.ARCHIVED')} tone="neutral" />
                   ) : (
-                    <StatusBadge label="Активна" tone="success" />
+                    <StatusBadge label={t('settings.categoryActive')} tone="success" />
                   )}
                 </TableCell>
                 <TableCell>
@@ -105,7 +107,7 @@ export function CategoriesManager({
                           setRenameValue(category.name)
                         }}
                       >
-                        Переименовать
+                        {t('common.rename')}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={async () => {
@@ -116,9 +118,11 @@ export function CategoriesManager({
                           }
                         }}
                       >
-                        {category.isArchived ? 'Вернуть из архива' : 'Архивировать'}
+                        {category.isArchived ? t('common.unarchive') : t('common.archive')}
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setDeleteTarget(category)}>Удалить</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setDeleteTarget(category)}>
+                        {t('common.delete')}
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
@@ -131,12 +135,12 @@ export function CategoriesManager({
       <Dialog open={Boolean(renameTarget)} onOpenChange={(open) => !open && setRenameTarget(null)}>
         <DialogContent className="max-w-[360px]">
           <DialogHeader>
-            <DialogTitle>Переименовать категорию</DialogTitle>
+            <DialogTitle>{t('settings.renameCategory')}</DialogTitle>
           </DialogHeader>
           <Input value={renameValue} onChange={(e) => setRenameValue(e.target.value)} />
           <DialogFooter>
             <Button type="button" variant="secondary" onClick={() => setRenameTarget(null)}>
-              Отмена
+              {t('common.cancel')}
             </Button>
             <Button
               type="button"
@@ -150,7 +154,7 @@ export function CategoriesManager({
                 }
               }}
             >
-              Сохранить
+              {t('common.save')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -159,15 +163,15 @@ export function CategoriesManager({
       <ConfirmDialog
         open={Boolean(deleteTarget)}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
-        title="Удалить категорию?"
-        description="Категорию с товарами/расходами удалить нельзя — сначала архивируйте её."
-        confirmLabel="Удалить"
+        title={t('settings.deleteCategoryTitle')}
+        description={t('settings.deleteCategoryText')}
+        confirmLabel={t('common.delete')}
         danger
         onConfirm={async () => {
           if (!deleteTarget) return
           try {
             await onDelete(deleteTarget.id)
-            toast.success('Категория удалена')
+            toast.success(t('settings.categoryDeleted'))
           } catch (error) {
             toast.error(apiErrorMessage(error))
           }

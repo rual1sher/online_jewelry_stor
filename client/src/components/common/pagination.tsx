@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useT } from '@/lib/i18n'
 import { totalPages } from '@/lib/utils'
 
 interface PaginationProps {
@@ -10,13 +11,14 @@ interface PaginationProps {
 }
 
 export function Pagination({ page, limit, total, onPageChange }: PaginationProps) {
+  const t = useT()
   const pages = totalPages(total, limit)
   if (pages <= 1) return null
 
   return (
     <div className="flex items-center justify-between border-t border-line px-3 py-3">
       <span className="text-[13px] text-muted">
-        Стр. {page} из {pages} · всего {total}
+        {t('common.pagination', { page, pages, total })}
       </span>
       <div className="flex gap-1">
         <Button

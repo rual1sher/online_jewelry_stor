@@ -19,11 +19,12 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { useT, type TKey } from '@/lib/i18n'
 
 const schema = z.object({
-  name: z.string().min(1, 'Укажите название'),
-  sku: z.string().min(1, 'Укажите код'),
-  categoryId: z.string().min(1, 'Выберите категорию'),
+  name: z.string().min(1, 'validation.name'),
+  sku: z.string().min(1, 'validation.code'),
+  categoryId: z.string().min(1, 'validation.category'),
   description: z.string().optional(),
 })
 
@@ -38,6 +39,7 @@ export function EditProductDialog({
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
+  const t = useT()
   const { data: categories } = useCategories()
   const updateProduct = useUpdateProduct()
 
@@ -64,10 +66,10 @@ export function EditProductDialog({
   const onSubmit = handleSubmit(async (values) => {
     try {
       await updateProduct.mutateAsync({ id: product.id, ...values })
-      toast.success('Товар обновлён')
+      toast.success(t('products.updated'))
       onOpenChange(false)
     } catch (error) {
-      toast.error(apiErrorMessage(error, 'Не удалось обновить товар'))
+      toast.error(apiErrorMessage(error, t('products.updateFailed')))
     }
   })
 
@@ -75,29 +77,33 @@ export function EditProductDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Редактировать товар</DialogTitle>
+          <DialogTitle>{t('products.editTitle')}</DialogTitle>
         </DialogHeader>
         <form onSubmit={onSubmit} className="flex flex-col gap-3">
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="edit-name">Название</Label>
+              <Label htmlFor="edit-name">{t('field.name')}</Label>
               <Input id="edit-name" {...register('name')} />
-              {errors.name ? <p className="text-[12px] text-danger">{errors.name.message}</p> : null}
+              {errors.name ? (
+                <p className="text-[12px] text-danger">{t(errors.name.message as TKey)}</p>
+              ) : null}
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="edit-sku">Код (SKU)</Label>
+              <Label htmlFor="edit-sku">{t('products.skuShort')}</Label>
               <Input id="edit-sku" {...register('sku')} />
-              {errors.sku ? <p className="text-[12px] text-danger">{errors.sku.message}</p> : null}
+              {errors.sku ? (
+                <p className="text-[12px] text-danger">{t(errors.sku.message as TKey)}</p>
+              ) : null}
             </div>
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label>Категория</Label>
+            <Label>{t('field.category')}</Label>
             <Select
               value={watch('categoryId')}
               onValueChange={(v) => setValue('categoryId', v, { shouldValidate: true })}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Выберите категорию" />
+                <SelectValue placeholder={t('validation.category')} />
               </SelectTrigger>
               <SelectContent>
                 {categories?.map((c) => (
@@ -109,15 +115,15 @@ export function EditProductDialog({
             </Select>
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="edit-description">Описание</Label>
+            <Label htmlFor="edit-description">{t('field.description')}</Label>
             <Textarea id="edit-description" rows={3} {...register('description')} />
           </div>
           <DialogFooter>
             <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
-              Отмена
+              {t('common.cancel')}
             </Button>
             <Button type="submit" disabled={updateProduct.isPending}>
-              {updateProduct.isPending ? 'Сохраняем…' : 'Сохранить'}
+              {updateProduct.isPending ? t('common.saving') : t('common.save')}
             </Button>
           </DialogFooter>
         </form>

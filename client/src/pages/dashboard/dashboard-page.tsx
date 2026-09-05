@@ -4,21 +4,23 @@ import { Loading } from '@/components/common/loading'
 import { MetricCard } from '@/components/common/metric-card'
 import { PageHeader } from '@/components/common/page-header'
 import { formatMoney } from '@/lib/format'
+import { useT } from '@/lib/i18n'
 import { useDashboardDateFilter, useDashboardIsoRange } from '@/store/dateFilter'
 import { RevenueProfitChart } from '@/components/common/revenue-profit-chart'
 import { LowStockTable } from './components/low-stock-table'
 import { RecentOrdersTable } from './components/recent-orders-table'
 
 export function DashboardPage() {
+  const t = useT()
   const { preset, customFrom, customTo, setPreset, setCustomRange } = useDashboardDateFilter()
   const { from, to } = useDashboardIsoRange()
   const { data, isLoading } = useDashboard(from, to)
 
   return (
     <div>
-      <title>Дашборд — Ювелир</title>
+      <title>{`${t('nav.dashboard')} — ${t('common.appName')}`}</title>
       <PageHeader
-        title="Панель управления"
+        title={t('dashboard.title')}
         actions={
           <DateRangeFilter
             preset={preset}
@@ -35,10 +37,10 @@ export function DashboardPage() {
       ) : (
         <div className="flex flex-col gap-5">
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            <MetricCard label="Выручка" value={formatMoney(data.revenue)} active />
-            <MetricCard label="Чистая прибыль" value={formatMoney(data.netProfit)} />
-            <MetricCard label="Количество заказов" value={data.ordersCount} />
-            <MetricCard label="Стоимость склада" value={formatMoney(data.stockValue)} />
+            <MetricCard label={t('dashboard.revenue')} value={formatMoney(data.revenue)} active />
+            <MetricCard label={t('dashboard.netProfit')} value={formatMoney(data.netProfit)} />
+            <MetricCard label={t('dashboard.ordersCount')} value={data.ordersCount} />
+            <MetricCard label={t('dashboard.stockValue')} value={formatMoney(data.stockValue)} />
           </div>
 
           <RevenueProfitChart data={data.chartData} />

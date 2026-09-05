@@ -5,6 +5,7 @@ import { AppShell } from '@/components/layout/app-shell'
 import { Loading } from '@/components/common/loading'
 import { Toaster } from '@/components/ui/sonner'
 import { LoginPage } from '@/pages/auth'
+import { useLang } from '@/lib/i18n'
 
 const DashboardPage = lazy(() => import('@/pages/dashboard').then((m) => ({ default: m.DashboardPage })))
 const ProductsPage = lazy(() => import('@/pages/products').then((m) => ({ default: m.ProductsPage })))
@@ -20,11 +21,15 @@ const ReportsPage = lazy(() => import('@/pages/reports').then((m) => ({ default:
 const SettingsPage = lazy(() => import('@/pages/settings').then((m) => ({ default: m.SettingsPage })))
 
 function App() {
+  // Смена языка перемонтирует дерево страниц — так подхватываются и форматтеры дат/сумм,
+  // которые читают язык вне React.
+  const lang = useLang()
+
   return (
     <BrowserRouter>
       <Toaster />
       <Suspense fallback={<Loading className="min-h-screen" />}>
-        <Routes>
+        <Routes key={lang}>
           <Route path="/login" element={<LoginPage />} />
           <Route
             element={

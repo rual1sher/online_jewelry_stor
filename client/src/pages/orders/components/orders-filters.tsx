@@ -2,7 +2,13 @@ import { Search } from 'lucide-react'
 import type { OrderStatus, PaymentStatus } from '@/api/types'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS } from '@/lib/constants'
+import {
+  ORDER_STATUSES,
+  ORDER_STATUS_KEY,
+  PAYMENT_STATUSES,
+  PAYMENT_STATUS_KEY,
+} from '@/lib/constants'
+import { useT } from '@/lib/i18n'
 
 interface OrdersFiltersProps {
   search: string
@@ -21,12 +27,14 @@ export function OrdersFilters({
   paymentStatus,
   onPaymentStatusChange,
 }: OrdersFiltersProps) {
+  const t = useT()
+
   return (
     <div className="flex flex-wrap items-center gap-2">
       <div className="relative">
         <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted" />
         <Input
-          placeholder="Поиск по номеру заказа"
+          placeholder={t('orders.search')}
           className="w-[220px] pl-8"
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
@@ -37,13 +45,13 @@ export function OrdersFilters({
         onValueChange={(v) => onStatusChange(v === 'all' ? undefined : (v as OrderStatus))}
       >
         <SelectTrigger className="w-[170px]">
-          <SelectValue placeholder="Статус заказа" />
+          <SelectValue placeholder={t('orders.statusFilter')} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">Все статусы</SelectItem>
-          {Object.entries(ORDER_STATUS_LABELS).map(([key, label]) => (
-            <SelectItem key={key} value={key}>
-              {label}
+          <SelectItem value="all">{t('common.allStatuses')}</SelectItem>
+          {ORDER_STATUSES.map((value) => (
+            <SelectItem key={value} value={value}>
+              {t(ORDER_STATUS_KEY[value])}
             </SelectItem>
           ))}
         </SelectContent>
@@ -53,13 +61,13 @@ export function OrdersFilters({
         onValueChange={(v) => onPaymentStatusChange(v === 'all' ? undefined : (v as PaymentStatus))}
       >
         <SelectTrigger className="w-[190px]">
-          <SelectValue placeholder="Статус оплаты" />
+          <SelectValue placeholder={t('orders.paymentFilter')} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">Все статусы оплаты</SelectItem>
-          {Object.entries(PAYMENT_STATUS_LABELS).map(([key, label]) => (
-            <SelectItem key={key} value={key}>
-              {label}
+          <SelectItem value="all">{t('orders.allPaymentStatuses')}</SelectItem>
+          {PAYMENT_STATUSES.map((value) => (
+            <SelectItem key={value} value={value}>
+              {t(PAYMENT_STATUS_KEY[value])}
             </SelectItem>
           ))}
         </SelectContent>

@@ -22,11 +22,12 @@ import { MoneyInput } from '@/components/ui/money-input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { toInputDate } from '@/lib/format'
+import { useT, type TKey } from '@/lib/i18n'
 
 const schema = z.object({
-  categoryId: z.string().min(1, 'Выберите категорию'),
-  title: z.string().min(1, 'Укажите название'),
-  amount: z.number().int().min(1, 'Сумма должна быть больше 0'),
+  categoryId: z.string().min(1, 'validation.category'),
+  title: z.string().min(1, 'validation.name'),
+  amount: z.number().int().min(1, 'validation.amountPositive'),
   date: z.string().optional(),
   comment: z.string().optional(),
   receiptPhotoUrl: z.string().optional(),
@@ -44,6 +45,7 @@ export function ExpenseFormDialog({
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
+  const t = useT()
   const { data: categories } = useExpenseCategories()
   const createExpense = useCreateExpense()
   const updateExpense = useUpdateExpense()
@@ -78,14 +80,14 @@ export function ExpenseFormDialog({
     try {
       if (expense) {
         await updateExpense.mutateAsync({ id: expense.id, ...values })
-        toast.success('Расход обновлён')
+        toast.success(t('expenses.updated'))
       } else {
         await createExpense.mutateAsync(values)
-        toast.success('Расход добавлен')
+        toast.success(t('expenses.created'))
       }
       onOpenChange(false)
     } catch (error) {
-      toast.error(apiErrorMessage(error, 'Не удалось сохранить расход'))
+      toast.error(apiErrorMessage(error, t('expenses.saveFailed')))
     }
   })
 
@@ -95,23 +97,25 @@ export function ExpenseFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isEdit ? 'Редактировать расход' : 'Новый расход'}</DialogTitle>
+          <DialogTitle>{isEdit ? t('expenses.editTitle') : t('expenses.newTitle')}</DialogTitle>
         </DialogHeader>
         <form onSubmit={onSubmit} className="flex flex-col gap-3">
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="expense-title">Название расхода</Label>
+            <Label htmlFor="expense-title">{t('expenses.nameField')}</Label>
             <Input id="expense-title" {...register('title')} />
-            {errors.title ? <p className="text-[12px] text-danger">{errors.title.message}</p> : null}
+            {errors.title ? (
+              <p className="text-[12px] text-danger">{t(errors.title.message as TKey)}</p>
+            ) : null}
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5">
-              <Label>Категория</Label>
+              <Label>{t('field.category')}</Label>
               <Select
                 value={watch('categoryId')}
                 onValueChange={(v) => setValue('categoryId', v, { shouldValidate: true })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Категория" />
+                  <SelectValue placeholder={t('field.category')} />
                 </SelectTrigger>
                 <SelectContent>
                   {categories?.map((c) => (
@@ -122,25 +126,27 @@ export function ExpenseFormDialog({
                 </SelectContent>
               </Select>
               {errors.categoryId ? (
-                <p className="text-[12px] text-danger">{errors.categoryId.message}</p>
+                <p className="text-[12px] text-danger">{t(errors.categoryId.message as TKey)}</p>
               ) : null}
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="expense-amount">Сумма</Label>
+              <Label htmlFor="expense-amount">{t('field.amount')}</Label>
               <MoneyInput id="expense-amount" value={watch('amount')} onChange={(v) => setValue('amount', v)} />
-              {errors.amount ? <p className="text-[12px] text-danger">{errors.amount.message}</p> : null}
+              {errors.amount ? (
+                <p className="text-[12px] text-danger">{t(errors.amount.message as TKey)}</p>
+              ) : null}
             </div>
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="expense-date">Дата</Label>
+            <Label htmlFor="expense-date">{t('field.date')}</Label>
             <Input id="expense-date" type="date" {...register('date')} />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="expense-comment">Комментарий</Label>
+            <Label htmlFor="expense-comment">{t('field.comment')}</Label>
             <Textarea id="expense-comment" rows={2} {...register('comment')} />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="expense-receipt">Фото чека (необязательно)</Label>
+            <Label htmlFor="expense-receipt">{t('expenses.receipt')}</Label>
             <ImageUploadField
               value={watch('receiptPhotoUrl') ?? ''}
               onChange={(url) => setValue('receiptPhotoUrl', url)}
@@ -148,10 +154,10 @@ export function ExpenseFormDialog({
           </div>
           <DialogFooter>
             <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
-              Отмена
+              {t('common.cancel')}
             </Button>
             <Button type="submit" disabled={pending}>
-              {pending ? 'Сохраняем…' : 'Сохранить'}
+              {pending ? t('common.saving') : t('common.save')}
             </Button>
           </DialogFooter>
         </form>

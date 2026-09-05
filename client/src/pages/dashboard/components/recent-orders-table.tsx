@@ -5,28 +5,36 @@ import { StatusBadge } from '@/components/common/status-badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import type { DashboardOverview } from '@/api/types'
-import { ORDER_STATUS_LABELS, ORDER_STATUS_TONE, PAYMENT_STATUS_LABELS, PAYMENT_STATUS_TONE } from '@/lib/constants'
+import {
+  ORDER_STATUS_KEY,
+  ORDER_STATUS_TONE,
+  PAYMENT_STATUS_KEY,
+  PAYMENT_STATUS_TONE,
+} from '@/lib/constants'
 import { formatDateTime } from '@/lib/format'
+import { useT } from '@/lib/i18n'
 
 export function RecentOrdersTable({ orders }: { orders: DashboardOverview['recentOrders'] }) {
+  const t = useT()
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Последние заказы</CardTitle>
+        <CardTitle>{t('dashboard.recentOrders')}</CardTitle>
       </CardHeader>
       <CardContent className="p-0">
         {orders.length === 0 ? (
-          <EmptyState message="Заказов пока нет — они появятся здесь после первой продажи" />
+          <EmptyState message={t('dashboard.ordersEmpty')} />
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>№ заказа</TableHead>
-                <TableHead>Товары</TableHead>
-                <TableHead>Сумма</TableHead>
-                <TableHead>Оплата</TableHead>
-                <TableHead>Статус</TableHead>
-                <TableHead>Дата</TableHead>
+                <TableHead>{t('orders.number')}</TableHead>
+                <TableHead>{t('field.products')}</TableHead>
+                <TableHead>{t('field.amount')}</TableHead>
+                <TableHead>{t('field.payment')}</TableHead>
+                <TableHead>{t('field.status')}</TableHead>
+                <TableHead>{t('field.date')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -43,13 +51,13 @@ export function RecentOrdersTable({ orders }: { orders: DashboardOverview['recen
                   </TableCell>
                   <TableCell>
                     <StatusBadge
-                      label={PAYMENT_STATUS_LABELS[order.paymentStatus]}
+                      label={t(PAYMENT_STATUS_KEY[order.paymentStatus])}
                       tone={PAYMENT_STATUS_TONE[order.paymentStatus]}
                     />
                   </TableCell>
                   <TableCell>
                     <StatusBadge
-                      label={ORDER_STATUS_LABELS[order.status]}
+                      label={t(ORDER_STATUS_KEY[order.status])}
                       tone={ORDER_STATUS_TONE[order.status]}
                     />
                   </TableCell>

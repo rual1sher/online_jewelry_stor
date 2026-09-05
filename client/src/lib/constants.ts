@@ -8,15 +8,28 @@ import type {
   StockMovementType,
   UserRole,
 } from '@/api/types'
+import type { TKey } from '@/lib/i18n'
 
 export type SemanticTone = 'success' | 'warning' | 'danger' | 'neutral'
 
-export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
-  NEW: 'Новый',
-  CONFIRMED: 'Подтверждён',
-  SHIPPED: 'Отправлен',
-  DELIVERED: 'Доставлен',
-  CANCELLED: 'Отменён',
+export type StockStatus = 'SUFFICIENT' | 'LOW' | 'OUT'
+
+/** Подписи статусов и справочников живут в словаре i18n — здесь только ключи,
+ *  чтобы список значений и их порядок оставались единым источником правды. */
+export const ORDER_STATUSES: OrderStatus[] = [
+  'NEW',
+  'CONFIRMED',
+  'SHIPPED',
+  'DELIVERED',
+  'CANCELLED',
+]
+
+export const ORDER_STATUS_KEY: Record<OrderStatus, TKey> = {
+  NEW: 'orderStatus.NEW',
+  CONFIRMED: 'orderStatus.CONFIRMED',
+  SHIPPED: 'orderStatus.SHIPPED',
+  DELIVERED: 'orderStatus.DELIVERED',
+  CANCELLED: 'orderStatus.CANCELLED',
 }
 
 export const ORDER_STATUS_TONE: Record<OrderStatus, SemanticTone> = {
@@ -27,18 +40,15 @@ export const ORDER_STATUS_TONE: Record<OrderStatus, SemanticTone> = {
   CANCELLED: 'danger',
 }
 
-export const ORDER_STATUS_FLOW: OrderStatus[] = [
-  'NEW',
-  'CONFIRMED',
-  'SHIPPED',
-  'DELIVERED',
-]
+export const ORDER_STATUS_FLOW: OrderStatus[] = ['NEW', 'CONFIRMED', 'SHIPPED', 'DELIVERED']
 
-export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
-  UNPAID: 'Не оплачено',
-  PARTIALLY_PAID: 'Частично оплачено',
-  PAID: 'Оплачено',
-  REFUNDED: 'Возвращено',
+export const PAYMENT_STATUSES: PaymentStatus[] = ['UNPAID', 'PARTIALLY_PAID', 'PAID', 'REFUNDED']
+
+export const PAYMENT_STATUS_KEY: Record<PaymentStatus, TKey> = {
+  UNPAID: 'paymentStatus.UNPAID',
+  PARTIALLY_PAID: 'paymentStatus.PARTIALLY_PAID',
+  PAID: 'paymentStatus.PAID',
+  REFUNDED: 'paymentStatus.REFUNDED',
 }
 
 export const PAYMENT_STATUS_TONE: Record<PaymentStatus, SemanticTone> = {
@@ -48,23 +58,36 @@ export const PAYMENT_STATUS_TONE: Record<PaymentStatus, SemanticTone> = {
   REFUNDED: 'neutral',
 }
 
-export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
-  CASH: 'Наличные',
-  CARD: 'Карта',
-  CLICK: 'Click',
-  PAYME: 'Payme',
-  BANK_TRANSFER: 'Банковский перевод',
-  OTHER: 'Другое',
+export const PAYMENT_METHODS: PaymentMethod[] = [
+  'CASH',
+  'CARD',
+  'CLICK',
+  'PAYME',
+  'BANK_TRANSFER',
+  'OTHER',
+]
+
+export const PAYMENT_METHOD_KEY: Record<PaymentMethod, TKey> = {
+  CASH: 'paymentMethod.CASH',
+  CARD: 'paymentMethod.CARD',
+  CLICK: 'paymentMethod.CLICK',
+  PAYME: 'paymentMethod.PAYME',
+  BANK_TRANSFER: 'paymentMethod.BANK_TRANSFER',
+  OTHER: 'paymentMethod.OTHER',
 }
 
-export const DELIVERY_PAYER_LABELS: Record<DeliveryPayer, string> = {
-  CUSTOMER: 'Клиент',
-  STORE: 'Магазин',
+export const DELIVERY_PAYERS: DeliveryPayer[] = ['CUSTOMER', 'STORE']
+
+export const DELIVERY_PAYER_KEY: Record<DeliveryPayer, TKey> = {
+  CUSTOMER: 'deliveryPayer.CUSTOMER',
+  STORE: 'deliveryPayer.STORE',
 }
 
-export const PRODUCT_STATUS_LABELS: Record<ProductStatus, string> = {
-  ACTIVE: 'Активен',
-  ARCHIVED: 'В архиве',
+export const PRODUCT_STATUSES: ProductStatus[] = ['ACTIVE', 'ARCHIVED']
+
+export const PRODUCT_STATUS_KEY: Record<ProductStatus, TKey> = {
+  ACTIVE: 'productStatus.ACTIVE',
+  ARCHIVED: 'productStatus.ARCHIVED',
 }
 
 export const PRODUCT_STATUS_TONE: Record<ProductStatus, SemanticTone> = {
@@ -72,60 +95,65 @@ export const PRODUCT_STATUS_TONE: Record<ProductStatus, SemanticTone> = {
   ARCHIVED: 'neutral',
 }
 
-export const STOCK_STATUS_LABELS: Record<
-  'SUFFICIENT' | 'LOW' | 'OUT',
-  string
-> = {
-  SUFFICIENT: 'Достаточно',
-  LOW: 'Мало осталось',
-  OUT: 'Закончился',
+export const STOCK_STATUS_KEY: Record<StockStatus, TKey> = {
+  SUFFICIENT: 'stockStatus.SUFFICIENT',
+  LOW: 'stockStatus.LOW',
+  OUT: 'stockStatus.OUT',
 }
 
-export const STOCK_STATUS_TONE: Record<
-  'SUFFICIENT' | 'LOW' | 'OUT',
-  SemanticTone
-> = {
+export const STOCK_STATUS_TONE: Record<StockStatus, SemanticTone> = {
   SUFFICIENT: 'success',
   LOW: 'warning',
   OUT: 'danger',
 }
 
-export const STOCK_MOVEMENT_LABELS: Record<StockMovementType, string> = {
-  INCOMING: 'Приход',
-  SALE: 'Продажа',
-  RETURN: 'Возврат',
-  ADJUSTMENT: 'Корректировка',
+export const STOCK_MOVEMENT_TYPES: StockMovementType[] = [
+  'INCOMING',
+  'SALE',
+  'RETURN',
+  'ADJUSTMENT',
+]
+
+export const STOCK_MOVEMENT_KEY: Record<StockMovementType, TKey> = {
+  INCOMING: 'movement.INCOMING',
+  SALE: 'movement.SALE',
+  RETURN: 'movement.RETURN',
+  ADJUSTMENT: 'movement.ADJUSTMENT',
 }
 
-export const ADJUSTMENT_REASON_LABELS: Record<AdjustmentReason, string> = {
-  LOST: 'Утеряно',
-  DAMAGED: 'Повреждено',
-  MISCOUNTED: 'Ошибочно учтено',
-  OTHER: 'Другое',
+export const ADJUSTMENT_REASONS: AdjustmentReason[] = ['LOST', 'DAMAGED', 'MISCOUNTED', 'OTHER']
+
+export const ADJUSTMENT_REASON_KEY: Record<AdjustmentReason, TKey> = {
+  LOST: 'adjustmentReason.LOST',
+  DAMAGED: 'adjustmentReason.DAMAGED',
+  MISCOUNTED: 'adjustmentReason.MISCOUNTED',
+  OTHER: 'adjustmentReason.OTHER',
 }
 
-export const USER_ROLE_LABELS: Record<UserRole, string> = {
-  OWNER: 'Владелец',
-  MANAGER: 'Менеджер',
+export const USER_ROLES: UserRole[] = ['OWNER', 'MANAGER']
+
+export const USER_ROLE_KEY: Record<UserRole, TKey> = {
+  OWNER: 'role.OWNER',
+  MANAGER: 'role.MANAGER',
 }
 
-export const EXPENSE_CATEGORY_PRESETS = [
-  'Реклама',
-  'Контент',
-  'Фото/видео',
-  'Аренда',
-  'Программы (подписки)',
-  'Прочие расходы',
+export const EXPENSE_CATEGORY_PRESET_KEYS: TKey[] = [
+  'expensePreset.ads',
+  'expensePreset.content',
+  'expensePreset.photo',
+  'expensePreset.rent',
+  'expensePreset.software',
+  'expensePreset.other',
 ]
 
 export const DATE_PRESETS = [
-  { key: 'today', label: 'Сегодня' },
-  { key: 'yesterday', label: 'Вчера' },
-  { key: 'last7', label: 'Последние 7 дней' },
-  { key: 'last30', label: 'Последние 30 дней' },
-  { key: 'thisMonth', label: 'Этот месяц' },
-  { key: 'lastMonth', label: 'Прошлый месяц' },
-  { key: 'custom', label: 'Свой диапазон' },
-] as const
+  { key: 'today', labelKey: 'datePreset.today' },
+  { key: 'yesterday', labelKey: 'datePreset.yesterday' },
+  { key: 'last7', labelKey: 'datePreset.last7' },
+  { key: 'last30', labelKey: 'datePreset.last30' },
+  { key: 'thisMonth', labelKey: 'datePreset.thisMonth' },
+  { key: 'lastMonth', labelKey: 'datePreset.lastMonth' },
+  { key: 'custom', labelKey: 'datePreset.custom' },
+] as const satisfies readonly { key: string; labelKey: TKey }[]
 
 export type DatePresetKey = (typeof DATE_PRESETS)[number]['key']
