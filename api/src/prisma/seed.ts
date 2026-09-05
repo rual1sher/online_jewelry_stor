@@ -5,6 +5,47 @@ import { PrismaClient, UserRole } from '../generated/prisma/client';
 
 const SALT_ROUNDS = 10;
 
+const PRODUCT_CATEGORIES = [
+  'Кольца',
+  'Серьги',
+  'Бусы',
+  'Браслеты',
+  'Цепочки',
+  'Кулоны и подвески',
+  'Часы',
+  'Броши',
+  'Комплекты',
+];
+
+const EXPENSE_CATEGORIES = [
+  'Реклама',
+  'Контент',
+  'Фото/видео',
+  'Аренда',
+  'Программы (подписки)',
+  'Прочие расходы',
+];
+
+async function seedCategories(prisma: PrismaClient) {
+  for (const name of PRODUCT_CATEGORIES) {
+    await prisma.category.upsert({
+      where: { name },
+      update: {},
+      create: { name },
+    });
+  }
+  console.log(`Категории товаров готовы (${PRODUCT_CATEGORIES.length})`);
+
+  for (const name of EXPENSE_CATEGORIES) {
+    await prisma.expenseCategory.upsert({
+      where: { name },
+      update: {},
+      create: { name },
+    });
+  }
+  console.log(`Категории расходов готовы (${EXPENSE_CATEGORIES.length})`);
+}
+
 async function upsertUser(
   prisma: PrismaClient,
   role: UserRole,
@@ -61,6 +102,8 @@ async function main() {
       'MANAGER не создан — задайте SEED_MANAGER_PHONE и SEED_MANAGER_PASSWORD в .env, если он нужен',
     );
   }
+
+  await seedCategories(prisma);
 
   await prisma.$disconnect();
 }
