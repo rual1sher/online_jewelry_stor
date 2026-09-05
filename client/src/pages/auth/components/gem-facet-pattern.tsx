@@ -1,6 +1,6 @@
 // Панель бренда на странице входа всегда тёмная, независимо от темы приложения —
 // поэтому цвет обводки граней фиксированный, а не токен --canvas.
-export const GEM_PANEL_BG = '#15171a'
+export const GEM_PANEL_BG = '#1a1210'
 
 const FACET_COUNT = 16
 const CENTER = 200
