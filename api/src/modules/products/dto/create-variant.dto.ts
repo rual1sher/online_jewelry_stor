@@ -5,9 +5,10 @@ export class CreateVariantDto {
   @MinLength(1)
   name: string;
 
-  @IsString()
-  @MinLength(1)
-  sku: string;
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  costPrice?: number;
 
   @IsInt()
   @Min(0)
@@ -17,4 +18,9 @@ export class CreateVariantDto {
   @IsInt()
   @Min(0)
   minStock?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  stock?: number;
 }

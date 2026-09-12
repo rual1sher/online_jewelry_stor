@@ -9,12 +9,15 @@ const UPLOADS_URL_PREFIX = '/uploads/';
 // Ссылка приходит из пользовательского ввода (её можно было вставить вручную, а не
 // только получить от /uploads/image), поэтому путь проверяется на выход за пределы
 // каталога загрузок, прежде чем что-либо удалять.
-export async function deleteUploadedFileIfLocal(url: string | null | undefined): Promise<void> {
+export async function deleteUploadedFileIfLocal(
+  url: string | null | undefined,
+): Promise<void> {
   if (!url || !url.startsWith(UPLOADS_URL_PREFIX)) return;
   const relativePath = url.slice(UPLOADS_URL_PREFIX.length);
   const uploadsRoot = resolve(process.cwd(), env.uploadDir);
   const filePath = resolve(join(uploadsRoot, relativePath));
-  if (filePath !== uploadsRoot && !filePath.startsWith(uploadsRoot + sep)) return;
+  if (filePath !== uploadsRoot && !filePath.startsWith(uploadsRoot + sep))
+    return;
   try {
     await unlink(filePath);
   } catch {

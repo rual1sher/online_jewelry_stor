@@ -81,10 +81,11 @@ export function ProductsPage() {
                   <TableHead />
                   <TableHead>{t('field.name')}</TableHead>
                   <TableHead>{t('field.category')}</TableHead>
-                  <TableHead>{t('field.sku')}</TableHead>
                   <TableHead>{t('products.variantsCount')}</TableHead>
-                  <TableHead>{t('field.stock')}</TableHead>
-                  <TableHead>{t('products.priceFrom')}</TableHead>
+                  <TableHead>{t('field.incoming')}</TableHead>
+                  <TableHead>{t('field.outgoing')}</TableHead>
+                  <TableHead>{t('field.current')}</TableHead>
+                  <TableHead>{t('field.sellingPrice')}</TableHead>
                   <TableHead>{t('field.status')}</TableHead>
                 </TableRow>
               </TableHeader>
@@ -104,9 +105,10 @@ export function ProductsPage() {
                     </TableCell>
                     <TableCell className="font-medium">{product.name}</TableCell>
                     <TableCell className="text-muted">{product.category.name}</TableCell>
-                    <TableCell className="text-muted">{product.sku}</TableCell>
-                    <TableCell>{product.variantsCount}</TableCell>
-                    <TableCell className="tabular-nums">{product.totalStock}</TableCell>
+                    <TableCell className="tabular-nums text-muted">{product.variantsCount}</TableCell>
+                    <TableCell className="tabular-nums font-medium">{product.totalReceived}</TableCell>
+                    <TableCell className="tabular-nums text-muted">{product.totalSold}</TableCell>
+                    <TableCell className="tabular-nums font-semibold">{product.totalStock}</TableCell>
                     <TableCell>
                       <MoneyText amount={product.sellingPriceFrom} className="text-[13px]" />
                     </TableCell>

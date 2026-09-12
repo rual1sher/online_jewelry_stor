@@ -23,7 +23,6 @@ import { useT, type TKey } from '@/lib/i18n'
 
 const schema = z.object({
   name: z.string().min(1, 'validation.name'),
-  sku: z.string().min(1, 'validation.code'),
   categoryId: z.string().min(1, 'validation.category'),
   description: z.string().optional(),
 })
@@ -56,7 +55,6 @@ export function EditProductDialog({
     if (open) {
       reset({
         name: product.name,
-        sku: product.sku,
         categoryId: product.categoryId,
         description: product.description ?? '',
       })
@@ -80,21 +78,12 @@ export function EditProductDialog({
           <DialogTitle>{t('products.editTitle')}</DialogTitle>
         </DialogHeader>
         <form onSubmit={onSubmit} className="flex flex-col gap-3">
-          <div className="grid grid-cols-2 gap-3">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="edit-name">{t('field.name')}</Label>
-              <Input id="edit-name" {...register('name')} />
-              {errors.name ? (
-                <p className="text-[12px] text-danger">{t(errors.name.message as TKey)}</p>
-              ) : null}
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="edit-sku">{t('products.skuShort')}</Label>
-              <Input id="edit-sku" {...register('sku')} />
-              {errors.sku ? (
-                <p className="text-[12px] text-danger">{t(errors.sku.message as TKey)}</p>
-              ) : null}
-            </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="edit-name">{t('field.name')}</Label>
+            <Input id="edit-name" {...register('name')} />
+            {errors.name ? (
+              <p className="text-[12px] text-danger">{t(errors.name.message as TKey)}</p>
+            ) : null}
           </div>
           <div className="flex flex-col gap-1.5">
             <Label>{t('field.category')}</Label>

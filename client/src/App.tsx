@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { ProtectedRoute } from '@/components/auth/protected-route'
 import { AppShell } from '@/components/layout/app-shell'
 import { Loading } from '@/components/common/loading'
@@ -14,10 +14,8 @@ const ProductDetailPage = lazy(() =>
 )
 const OrdersPage = lazy(() => import('@/pages/orders').then((m) => ({ default: m.OrdersPage })))
 const OrderDetailPage = lazy(() => import('@/pages/orders').then((m) => ({ default: m.OrderDetailPage })))
-const InventoryPage = lazy(() => import('@/pages/inventory').then((m) => ({ default: m.InventoryPage })))
 const ExpensesPage = lazy(() => import('@/pages/expenses').then((m) => ({ default: m.ExpensesPage })))
 const FinancePage = lazy(() => import('@/pages/finance').then((m) => ({ default: m.FinancePage })))
-const ReportsPage = lazy(() => import('@/pages/reports').then((m) => ({ default: m.ReportsPage })))
 const SettingsPage = lazy(() => import('@/pages/settings').then((m) => ({ default: m.SettingsPage })))
 
 function App() {
@@ -50,7 +48,7 @@ function App() {
             <Route path="products/:id" element={<ProductDetailPage />} />
             <Route path="orders" element={<OrdersPage />} />
             <Route path="orders/:id" element={<OrderDetailPage />} />
-            <Route path="inventory" element={<InventoryPage />} />
+            <Route path="inventory" element={<Navigate to="/products" replace />} />
             <Route
               path="expenses"
               element={
@@ -67,14 +65,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="reports"
-              element={
-                <ProtectedRoute roles={['OWNER']}>
-                  <ReportsPage />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="reports" element={<Navigate to="/finance" replace />} />
             <Route
               path="settings"
               element={

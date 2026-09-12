@@ -5,7 +5,12 @@ import type { MulterOptions } from '@nestjs/platform-express/multer/interfaces/m
 import { diskStorage } from 'multer';
 import { env } from '../../config/env';
 
-const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const ALLOWED_MIME_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+];
 
 export const IMAGES_DIR = join(process.cwd(), env.uploadDir, 'images');
 
@@ -17,7 +22,10 @@ export const imageUploadOptions: MulterOptions = {
   storage: diskStorage({
     destination: IMAGES_DIR,
     filename: (_req, file, callback) => {
-      callback(null, `${randomUUID()}${extname(file.originalname).toLowerCase()}`);
+      callback(
+        null,
+        `${randomUUID()}${extname(file.originalname).toLowerCase()}`,
+      );
     },
   }),
   limits: { fileSize: env.uploadMaxSizeBytes },

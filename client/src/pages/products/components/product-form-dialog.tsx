@@ -25,14 +25,14 @@ import { useT, type TKey } from '@/lib/i18n'
 
 const variantSchema = z.object({
   name: z.string().min(1, 'validation.name'),
-  sku: z.string().min(1, 'validation.code'),
+  stock: z.coerce.number().int().min(0).optional(),
+  costPrice: z.number().int().min(0).optional(),
   sellingPrice: z.number().int().min(0, 'validation.notNegative'),
   minStock: z.coerce.number().int().min(0).optional(),
 })
 
 const schema = z.object({
   name: z.string().min(1, 'products.nameRequired'),
-  sku: z.string().min(1, 'products.skuRequired'),
   categoryId: z.string().min(1, 'validation.category'),
   description: z.string().optional(),
   imageUrls: z.array(z.object({ url: z.string().min(1, 'products.imageLinkRequired') })),
@@ -42,7 +42,7 @@ const schema = z.object({
 type FormValues = z.input<typeof schema>
 type FormOutput = z.output<typeof schema>
 
-const emptyVariant = { sku: '', sellingPrice: 0, minStock: 0 }
+const emptyVariant = { stock: 0, costPrice: 0, sellingPrice: 0, minStock: 0 }
 
 export function ProductFormDialog({
   open,
@@ -67,7 +67,6 @@ export function ProductFormDialog({
     resolver: zodResolver(schema),
     defaultValues: {
       name: '',
-      sku: '',
       categoryId: '',
       imageUrls: [],
       variants: [{ ...emptyVariant, name: t('variant.defaultName') }],
@@ -81,7 +80,6 @@ export function ProductFormDialog({
     if (open) {
       reset({
         name: '',
-        sku: '',
         categoryId: '',
         imageUrls: [],
         variants: [{ ...emptyVariant, name: t('variant.defaultName') }],
@@ -112,21 +110,12 @@ export function ProductFormDialog({
           <section className="rounded-md border border-line p-4">
             <h3 className="mb-3 text-[15px] font-semibold text-ink">{t('products.mainSection')}</h3>
             <div className="flex flex-col gap-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="name">{t('products.nameField')}</Label>
-                  <Input id="name" {...register('name')} />
-                  {errors.name ? (
-                    <p className="text-[12px] text-danger">{t(errors.name.message as TKey)}</p>
-                  ) : null}
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="sku">{t('products.skuField')}</Label>
-                  <Input id="sku" {...register('sku')} />
-                  {errors.sku ? (
-                    <p className="text-[12px] text-danger">{t(errors.sku.message as TKey)}</p>
-                  ) : null}
-                </div>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="name">{t('products.nameField')}</Label>
+                <Input id="name" {...register('name')} />
+                {errors.name ? (
+                  <p className="text-[12px] text-danger">{t(errors.name.message as TKey)}</p>
+                ) : null}
               </div>
               <div className="flex flex-col gap-1.5">
                 <Label>{t('field.category')}</Label>
@@ -186,14 +175,21 @@ export function ProductFormDialog({
             ) : null}
             <div className="flex flex-col gap-3">
               {variants.fields.map((field, index) => (
-                <div key={field.id} className="grid grid-cols-[1.2fr_1fr_1fr_0.8fr_auto] items-end gap-2">
+                <div key={field.id} className="grid grid-cols-[1.2fr_0.8fr_1fr_1fr_0.7fr_auto] items-end gap-2">
                   <div className="flex flex-col gap-1">
                     <Label className="text-[12px] text-muted">{t('variant.nameSizeShort')}</Label>
                     <Input {...register(`variants.${index}.name` as const)} />
                   </div>
                   <div className="flex flex-col gap-1">
-                    <Label className="text-[12px] text-muted">{t('variant.codeShort')}</Label>
-                    <Input {...register(`variants.${index}.sku` as const)} />
+                    <Label className="text-[12px] text-muted">{t('field.stock')}</Label>
+                    <Input type="number" {...register(`variants.${index}.stock` as const)} />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <Label className="text-[12px] text-muted">{t('variant.costPriceShort')}</Label>
+                    <MoneyInput
+                      value={watch(`variants.${index}.costPrice` as const) ?? 0}
+                      onChange={(v) => setValue(`variants.${index}.costPrice`, v)}
+                    />
                   </div>
                   <div className="flex flex-col gap-1">
                     <Label className="text-[12px] text-muted">{t('field.sellingPrice')}</Label>

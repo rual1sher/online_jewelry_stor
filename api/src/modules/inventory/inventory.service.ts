@@ -189,7 +189,6 @@ export class InventoryService {
       variantId: v.id,
       productName: v.product.name,
       variantName: v.name,
-      sku: v.sku,
       currentStock: v.currentStock,
       averageCost: v.averageCost,
       stockValue: v.currentStock * v.averageCost,

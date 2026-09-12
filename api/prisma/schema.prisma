@@ -33,7 +33,6 @@ model Category {
 model Product {
   id          String           @id @default(cuid())
   name        String
-  sku         String           @unique
   description String?
   status      ProductStatus    @default(ACTIVE)
   categoryId  String           @map("category_id")
@@ -67,7 +66,6 @@ model ProductVariant {
   productId    String   @map("product_id")
   product      Product  @relation(fields: [productId], references: [id])
   name         String
-  sku          String   @unique
   sellingPrice Int      @map("selling_price")
   averageCost  Int      @default(0) @map("average_cost")
   currentStock Int      @default(0) @map("current_stock")

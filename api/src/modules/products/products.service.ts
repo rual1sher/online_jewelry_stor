@@ -27,7 +27,6 @@ export class ProductsService {
       return await this.prisma.product.create({
         data: {
           name: dto.name,
-          sku: dto.sku,
           description: dto.description,
           categoryId: dto.categoryId,
           images: dto.imageUrls
@@ -41,7 +40,8 @@ export class ProductsService {
           variants: {
             create: dto.variants.map((variant) => ({
               name: variant.name,
-              sku: variant.sku,
+              currentStock: variant.stock ?? 0,
+              averageCost: variant.costPrice ?? 0,
               sellingPrice: variant.sellingPrice,
               minStock: variant.minStock ?? 0,
             })),
@@ -61,10 +61,7 @@ export class ProductsService {
       status: query.status,
       ...(query.search
         ? {
-            OR: [
-              { name: { contains: query.search, mode: 'insensitive' } },
-              { sku: { contains: query.search, mode: 'insensitive' } },
-            ],
+            name: { contains: query.search, mode: 'insensitive' },
           }
         : {}),
     };
@@ -84,19 +81,47 @@ export class ProductsService {
       this.prisma.product.count({ where }),
     ]);
 
-    const items = products.map((product) => ({
-      id: product.id,
-      name: product.name,
-      sku: product.sku,
-      status: product.status,
-      category: product.category,
-      image: product.images[0]?.url ?? null,
-      variantsCount: product.variants.length,
-      totalStock: product.variants.reduce((sum, v) => sum + v.currentStock, 0),
-      sellingPriceFrom: product.variants.length
-        ? Math.min(...product.variants.map((v) => v.sellingPrice))
-        : 0,
-    }));
+    const allVariantIds = products.flatMap((p) => p.variants.map((v) => v.id));
+    const soldAgg = allVariantIds.length
+      ? await this.prisma.orderItem.groupBy({
+          by: ['variantId'],
+          where: { variantId: { in: allVariantIds } },
+          _sum: { quantity: true },
+        })
+      : [];
+    const soldByVariant = new Map(
+      soldAgg.map((s) => [s.variantId, s._sum.quantity ?? 0]),
+    );
+
+    const items = products.map((product) => {
+      const totalStock = product.variants.reduce(
+        (sum, v) => sum + v.currentStock,
+        0,
+      );
+      const totalSold = product.variants.reduce(
+        (sum, v) => sum + (soldByVariant.get(v.id) ?? 0),
+        0,
+      );
+      const totalReceived = totalStock + totalSold;
+
+      return {
+        id: product.id,
+        name: product.name,
+        status: product.status,
+        category: product.category,
+        image: product.images[0]?.url ?? null,
+        variantsCount: product.variants.length,
+        totalReceived,
+        totalSold,
+        totalStock,
+        costPriceFrom: product.variants.length
+          ? Math.min(...product.variants.map((v) => v.averageCost))
+          : 0,
+        sellingPriceFrom: product.variants.length
+          ? Math.min(...product.variants.map((v) => v.sellingPrice))
+          : 0,
+      };
+    });
 
     return toPaginated(items, total, query.page, query.limit);
   }
@@ -116,7 +141,7 @@ export class ProductsService {
 
     const variantIds = product.variants.map((v) => v.id);
 
-    const [soldAgg, deliveredAgg] = await Promise.all([
+    const [soldAgg, deliveredAgg, variantSoldAgg] = await Promise.all([
       this.prisma.orderItem.aggregate({
         where: { variantId: { in: variantIds } },
         _sum: { quantity: true },
@@ -128,7 +153,16 @@ export class ProductsService {
         },
         select: { quantity: true, priceAtSale: true, costAtSale: true },
       }),
+      this.prisma.orderItem.groupBy({
+        by: ['variantId'],
+        where: { variantId: { in: variantIds } },
+        _sum: { quantity: true },
+      }),
     ]);
+
+    const variantSoldMap = new Map(
+      variantSoldAgg.map((s) => [s.variantId, s._sum.quantity ?? 0]),
+    );
 
     const totalRevenue = deliveredAgg.reduce(
       (sum, i) => sum + i.quantity * i.priceAtSale,
@@ -139,18 +173,33 @@ export class ProductsService {
       0,
     );
 
+    const currentTotalStock = product.variants.reduce(
+      (sum, v) => sum + v.currentStock,
+      0,
+    );
+    const totalSold = soldAgg._sum.quantity ?? 0;
+    const totalReceived = currentTotalStock + totalSold;
+
+    const variantsWithStats = product.variants.map((v) => {
+      const sold = variantSoldMap.get(v.id) ?? 0;
+      return {
+        ...v,
+        sold,
+        received: v.currentStock + sold,
+      };
+    });
+
     return {
       ...product,
+      variants: variantsWithStats,
       stats: {
-        currentTotalStock: product.variants.reduce(
-          (sum, v) => sum + v.currentStock,
-          0,
-        ),
+        totalReceived,
+        totalSold,
+        currentTotalStock,
         totalStockValue: product.variants.reduce(
           (sum, v) => sum + v.currentStock * v.averageCost,
           0,
         ),
-        totalSold: soldAgg._sum.quantity ?? 0,
         totalRevenue,
         totalProfit: totalRevenue - totalCost,
       },
@@ -189,7 +238,8 @@ export class ProductsService {
         data: {
           productId,
           name: dto.name,
-          sku: dto.sku,
+          currentStock: dto.stock ?? 0,
+          averageCost: dto.costPrice ?? 0,
           sellingPrice: dto.sellingPrice,
           minStock: dto.minStock ?? 0,
         },
@@ -201,10 +251,15 @@ export class ProductsService {
 
   async updateVariant(variantId: string, dto: UpdateVariantDto) {
     await this.assertVariantExists(variantId);
+    const { costPrice, stock, ...rest } = dto;
     try {
       return await this.prisma.productVariant.update({
         where: { id: variantId },
-        data: dto,
+        data: {
+          ...rest,
+          ...(costPrice !== undefined ? { averageCost: costPrice } : {}),
+          ...(stock !== undefined ? { currentStock: stock } : {}),
+        },
       });
     } catch (error) {
       throw this.mapKnownError(error);
@@ -278,9 +333,7 @@ export class ProductsService {
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === 'P2002'
     ) {
-      return new ConflictException(
-        'Товар или вариант с таким кодом (SKU) уже существует',
-      );
+      return new ConflictException('Запись с такими данными уже существует');
     }
     return error;
   }

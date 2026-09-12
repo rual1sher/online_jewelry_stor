@@ -1,7 +1,7 @@
 import type { Dict } from './types'
 
 export const common = {
-  'common.appName': ['Ювелир', 'Zargar'],
+  'common.appName': ['Milajewelry', 'Milajewelry'],
   'common.tagline': [
     'Товар, склад, заказы и прибыль — в одном месте, до последнего сума.',
     'Mahsulot, ombor, buyurtma va foyda — soʻnggi soʻmigacha bir joyda.',
@@ -43,13 +43,16 @@ export const common = {
   'field.status': ['Статус', 'Holat'],
   'field.product': ['Товар', 'Mahsulot'],
   'field.products': ['Товары', 'Mahsulotlar'],
-  'field.variant': ['Вариант', 'Variant'],
+  'field.variant': ['Вариант', 'Oʻlcham'],
   'field.quantity': ['Кол-во', 'Miqdor'],
   'field.pricePerUnit': ['Цена за шт.', 'Dona narxi'],
   'field.stock': ['Остаток', 'Qoldiq'],
+  'field.incoming': ['Приход', 'Kirim'],
+  'field.outgoing': ['Расход (продано)', 'Chiqim'],
+  'field.current': ['В наличии', 'Hozirgisi'],
   'field.minStock': ['Мин. остаток', 'Min. qoldiq'],
   'field.minShort': ['Мин.', 'Min.'],
-  'field.cost': ['Себестоимость', 'Tannarx'],
+  'field.cost': ['Себестоимость', 'Tan narxi'],
   'field.sellingPrice': ['Цена продажи', 'Sotuv narxi'],
   'field.type': ['Тип', 'Turi'],
   'field.change': ['Изменение', 'Oʻzgarish'],

@@ -21,8 +21,9 @@ import { useT, type TKey } from '@/lib/i18n'
 
 const schema = z.object({
   name: z.string().min(1, 'validation.name'),
-  sku: z.string().min(1, 'validation.code'),
+  costPrice: z.number().int().min(0).optional(),
   sellingPrice: z.number().int().min(0),
+  stock: z.coerce.number().int().min(0).optional(),
   minStock: z.coerce.number().int().min(0),
 })
 
@@ -60,11 +61,12 @@ export function VariantDialog({
         variant
           ? {
               name: variant.name,
-              sku: variant.sku,
+              costPrice: variant.averageCost,
               sellingPrice: variant.sellingPrice,
+              stock: variant.currentStock,
               minStock: variant.minStock,
             }
-          : { name: '', sku: '', sellingPrice: 0, minStock: 0 },
+          : { name: '', costPrice: 0, sellingPrice: 0, stock: 0, minStock: 0 },
       )
     }
   }, [open, variant, reset])
@@ -100,21 +102,24 @@ export function VariantDialog({
               <p className="text-[12px] text-danger">{t(errors.name.message as TKey)}</p>
             ) : null}
           </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="variant-sku">{t('variant.code')}</Label>
-            <Input id="variant-sku" {...register('sku')} />
-            {errors.sku ? (
-              <p className="text-[12px] text-danger">{t(errors.sku.message as TKey)}</p>
-            ) : null}
-          </div>
           <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="variant-cost">{t('variant.costPrice')}</Label>
+              <MoneyInput id="variant-cost" value={watch('costPrice') ?? 0} onChange={(v) => setValue('costPrice', v)} />
+            </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="variant-price">{t('field.sellingPrice')}</Label>
               <MoneyInput id="variant-price" value={watch('sellingPrice')} onChange={(v) => setValue('sellingPrice', v)} />
             </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="variant-stock">{t('field.stock')}</Label>
+              <Input id="variant-stock" type="number" min={0} {...register('stock')} />
+            </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="variant-min">{t('field.minStock')}</Label>
-              <Input id="variant-min" type="number" {...register('minStock')} />
+              <Input id="variant-min" type="number" min={0} {...register('minStock')} />
             </div>
           </div>
           <DialogFooter>

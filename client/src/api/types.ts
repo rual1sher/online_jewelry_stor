@@ -78,7 +78,6 @@ export interface ProductVariant {
   id: string
   productId: string
   name: string
-  sku: string
   sellingPrice: number
   averageCost: number
   currentStock: number
@@ -86,12 +85,13 @@ export interface ProductVariant {
   isArchived: boolean
   createdAt: string
   updatedAt: string
+  received?: number
+  sold?: number
 }
 
 export interface Product {
   id: string
   name: string
-  sku: string
   description: string | null
   status: ProductStatus
   categoryId: string
@@ -105,20 +105,23 @@ export interface Product {
 export interface ProductListItem {
   id: string
   name: string
-  sku: string
   status: ProductStatus
   category: Category
   image: string | null
   variantsCount: number
+  totalReceived: number
+  totalSold: number
   totalStock: number
+  costPriceFrom?: number
   sellingPriceFrom: number
 }
 
 export interface ProductDetail extends Product {
   stats: {
-    currentTotalStock: number
-    totalStockValue: number
+    totalReceived: number
     totalSold: number
+    currentTotalStock: number
+    totalStockValue?: number
     totalRevenue: number
     totalProfit: number
   }
@@ -143,7 +146,6 @@ export interface StockTableItem {
   variantId: string
   productName: string
   variantName: string
-  sku: string
   currentStock: number
   averageCost: number
   stockValue: number

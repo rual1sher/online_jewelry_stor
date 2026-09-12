@@ -54,14 +54,14 @@ export function useVariantHistory(variantId: string | undefined) {
 
 export interface VariantInput {
   name: string
-  sku: string
+  stock?: number
+  costPrice?: number
   sellingPrice: number
   minStock?: number
 }
 
 export interface CreateProductPayload {
   name: string
-  sku: string
   description?: string
   categoryId: string
   imageUrls?: string[]
@@ -89,7 +89,6 @@ export function useCreateProduct() {
 
 export interface UpdateProductPayload {
   name?: string
-  sku?: string
   description?: string
   categoryId?: string
 }

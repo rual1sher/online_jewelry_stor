@@ -10,7 +10,7 @@ export function MobileNav() {
   const items = NAV_ITEMS.filter((item) => user && item.roles.includes(user.role)).slice(0, 5)
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 flex border-t border-line bg-surface md:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-40 flex h-14 border-t border-line bg-surface md:hidden">
       {items.map((item) => (
         <NavLink
           key={item.to}
@@ -18,13 +18,13 @@ export function MobileNav() {
           end={item.to === '/'}
           className={({ isActive }) =>
             cn(
-              'flex flex-1 flex-col items-center gap-0.5 py-2 text-[11px] text-muted',
-              isActive && 'text-accent',
+              'flex flex-1 flex-col items-center justify-center gap-0.5 py-1 text-[11px] text-muted transition-colors',
+              isActive && 'text-accent font-medium',
             )
           }
         >
-          <item.icon className="size-5" strokeWidth={1.5} />
-          {t(item.labelKey)}
+          <item.icon className="size-5 shrink-0" strokeWidth={1.5} />
+          <span className="truncate max-w-full px-1 text-center">{t(item.labelKey)}</span>
         </NavLink>
       ))}
     </nav>

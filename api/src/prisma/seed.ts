@@ -96,7 +96,9 @@ async function main() {
     process.env.SEED_MANAGER_NAME ?? 'Менеджер магазина',
   );
   if (manager) {
-    console.log(`Пользователь MANAGER готов: ${manager.phone} (${manager.name})`);
+    console.log(
+      `Пользователь MANAGER готов: ${manager.phone} (${manager.name})`,
+    );
   } else {
     console.log(
       'MANAGER не создан — задайте SEED_MANAGER_PHONE и SEED_MANAGER_PASSWORD в .env, если он нужен',

@@ -3,7 +3,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { deleteUploadedFileIfLocal } from '../uploads/uploads.util';
 import { UpdateSettingsDto } from './dto/update-settings.dto';
 
-const DEFAULT_STORE_NAME = 'Мой ювелирный магазин';
+const DEFAULT_STORE_NAME = 'Milajewelry';
 
 @Injectable()
 export class SettingsService {

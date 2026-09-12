@@ -36,11 +36,10 @@ export function DashboardPage() {
         <Loading />
       ) : (
         <div className="flex flex-col gap-5">
-          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <MetricCard label={t('dashboard.revenue')} value={formatMoney(data.revenue)} active />
             <MetricCard label={t('dashboard.netProfit')} value={formatMoney(data.netProfit)} />
             <MetricCard label={t('dashboard.ordersCount')} value={data.ordersCount} />
-            <MetricCard label={t('dashboard.stockValue')} value={formatMoney(data.stockValue)} />
           </div>
 
           <RevenueProfitChart data={data.chartData} />

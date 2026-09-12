@@ -15,5 +15,7 @@ export const env = {
   jwtSecret: requireEnv('JWT_SECRET'),
   jwtExpiresIn: (process.env.JWT_EXPIRES_IN ?? '7d') as StringValue,
   uploadDir: process.env.UPLOAD_DIR ?? 'uploads',
-  uploadMaxSizeBytes: Number(process.env.UPLOAD_MAX_SIZE_BYTES ?? 5 * 1024 * 1024),
+  uploadMaxSizeBytes: Number(
+    process.env.UPLOAD_MAX_SIZE_BYTES ?? 5 * 1024 * 1024,
+  ),
 } as const;

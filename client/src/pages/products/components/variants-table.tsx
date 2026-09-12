@@ -55,8 +55,9 @@ export function VariantsTable({
         <TableHeader>
           <TableRow>
             <TableHead>{t('field.variant')}</TableHead>
-            <TableHead>{t('field.stock')}</TableHead>
-            <TableHead>{t('field.cost')}</TableHead>
+            <TableHead>{t('field.incoming')}</TableHead>
+            <TableHead>{t('field.outgoing')}</TableHead>
+            <TableHead>{t('field.current')}</TableHead>
             <TableHead>{t('field.sellingPrice')}</TableHead>
             <TableHead>{t('field.minStock')}</TableHead>
             <TableHead>{t('field.status')}</TableHead>
@@ -70,12 +71,10 @@ export function VariantsTable({
               <TableRow key={variant.id}>
                 <TableCell className="font-medium">
                   {variant.name}
-                  <div className="text-[12px] text-muted">{variant.sku}</div>
                 </TableCell>
-                <TableCell className="tabular-nums">{variant.currentStock}</TableCell>
-                <TableCell>
-                  <MoneyText amount={variant.averageCost} className="text-[13px]" />
-                </TableCell>
+                <TableCell className="tabular-nums font-medium">{variant.received ?? variant.currentStock}</TableCell>
+                <TableCell className="tabular-nums text-muted">{variant.sold ?? 0}</TableCell>
+                <TableCell className="tabular-nums font-semibold">{variant.currentStock}</TableCell>
                 <TableCell>
                   <MoneyText amount={variant.sellingPrice} className="text-[13px]" />
                 </TableCell>

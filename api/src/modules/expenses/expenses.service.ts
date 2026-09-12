@@ -77,7 +77,10 @@ export class ExpensesService {
       data: { ...dto, date: dto.date ? new Date(dto.date) : undefined },
       include: { category: true },
     });
-    if (dto.receiptPhotoUrl !== undefined && dto.receiptPhotoUrl !== existing.receiptPhotoUrl) {
+    if (
+      dto.receiptPhotoUrl !== undefined &&
+      dto.receiptPhotoUrl !== existing.receiptPhotoUrl
+    ) {
       await deleteUploadedFileIfLocal(existing.receiptPhotoUrl);
     }
     return updated;

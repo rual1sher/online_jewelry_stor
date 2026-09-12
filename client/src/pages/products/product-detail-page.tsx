@@ -54,7 +54,7 @@ export function ProductDetailPage() {
             />
           </div>
           <p className="mt-1 text-[13px] text-muted">
-            {product.category.name} · SKU {product.sku}
+            {product.category.name}
           </p>
           {product.description ? <p className="mt-2 text-sm text-ink">{product.description}</p> : null}
         </div>
@@ -72,9 +72,9 @@ export function ProductDetailPage() {
       </div>
 
       <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-5">
-        <MetricCard label={t('products.currentStock')} value={product.stats.currentTotalStock} />
-        <MetricCard label={t('field.stockValue')} value={formatMoney(product.stats.totalStockValue)} />
-        <MetricCard label={t('products.totalSold')} value={product.stats.totalSold} />
+        <MetricCard label={t('field.incoming')} value={product.stats.totalReceived} />
+        <MetricCard label={t('field.outgoing')} value={product.stats.totalSold} />
+        <MetricCard label={t('field.current')} value={product.stats.currentTotalStock} active />
         <MetricCard label={t('chart.revenue')} value={formatMoney(product.stats.totalRevenue)} />
         <MetricCard label={t('products.profit')} value={formatMoney(product.stats.totalProfit)} />
       </div>

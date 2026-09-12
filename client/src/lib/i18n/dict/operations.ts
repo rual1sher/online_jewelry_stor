@@ -55,7 +55,7 @@ export const operations = {
   'orders.saveFailed': ['Не удалось сохранить заказ', 'Buyurtmani saqlab boʻlmadi'],
   'orders.itemRequired': ['Добавьте хотя бы один товар', 'Kamida bitta mahsulot qoʻshing'],
   'orders.productRequired': ['Выберите товар', 'Mahsulotni tanlang'],
-  'orders.variantRequired': ['Выберите вариант', 'Variantni tanlang'],
+  'orders.variantRequired': ['Выберите вариант', 'Oʻlchamni tanlang'],
 
   'inventory.title': ['Склад', 'Ombor'],
   'inventory.totalVariants': ['Видов товаров', 'Mahsulot turlari'],
