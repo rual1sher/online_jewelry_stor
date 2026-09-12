@@ -1,10 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Plus, Trash2 } from 'lucide-react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import { useCategories } from '@/api/categories'
+import { useCategories, useCreateCategory } from '@/api/categories'
 import { apiErrorMessage } from '@/api/client'
 import { useCreateProduct } from '@/api/products'
 import { ImageUploadField } from '@/components/common/image-upload-field'
@@ -55,6 +55,10 @@ export function ProductFormDialog({
   const { data: categories } = useCategories()
   const createProduct = useCreateProduct()
 
+  const [showNewCategory, setShowNewCategory] = useState(false)
+  const [newCategoryName, setNewCategoryName] = useState('')
+  const createCategory = useCreateCategory()
+
   const {
     register,
     control,
@@ -78,6 +82,8 @@ export function ProductFormDialog({
 
   useEffect(() => {
     if (open) {
+      setShowNewCategory(false)
+      setNewCategoryName('')
       reset({
         name: '',
         categoryId: '',
@@ -118,22 +124,60 @@ export function ProductFormDialog({
                 ) : null}
               </div>
               <div className="flex flex-col gap-1.5">
-                <Label>{t('field.category')}</Label>
-                <Select
-                  value={watch('categoryId')}
-                  onValueChange={(v) => setValue('categoryId', v, { shouldValidate: true })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder={t('validation.category')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories?.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>
-                        {c.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex items-center justify-between">
+                  <Label>{t('field.category')}</Label>
+                  <button
+                    type="button"
+                    onClick={() => setShowNewCategory(!showNewCategory)}
+                    className="text-[12px] text-accent hover:underline"
+                  >
+                    {showNewCategory ? t('common.cancel') : `+ ${t('settings.newCategory')}`}
+                  </button>
+                </div>
+                {showNewCategory ? (
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder={t('settings.newCategory')}
+                      value={newCategoryName}
+                      onChange={(e) => setNewCategoryName(e.target.value)}
+                      className="h-9 text-[13px]"
+                    />
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={async () => {
+                        if (!newCategoryName.trim()) return
+                        try {
+                          const res = await createCategory.mutateAsync(newCategoryName.trim())
+                          setValue('categoryId', res.id, { shouldValidate: true })
+                          setNewCategoryName('')
+                          setShowNewCategory(false)
+                          toast.success(t('common.save'))
+                        } catch (e) {
+                          toast.error(apiErrorMessage(e))
+                        }
+                      }}
+                    >
+                      {t('common.add')}
+                    </Button>
+                  </div>
+                ) : (
+                  <Select
+                    value={watch('categoryId')}
+                    onValueChange={(v) => setValue('categoryId', v, { shouldValidate: true })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={t('validation.category')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories?.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>
+                          {c.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
                 {errors.categoryId ? (
                   <p className="text-[12px] text-danger">{t(errors.categoryId.message as TKey)}</p>
                 ) : null}

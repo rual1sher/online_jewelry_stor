@@ -1,5 +1,5 @@
-import { LogOut, Moon, Sun } from 'lucide-react'
-import { Outlet } from 'react-router-dom'
+import { LogOut, Moon, Settings, Sun } from 'lucide-react'
+import { Link, Outlet } from 'react-router-dom'
 import { LangSwitcher } from '@/components/common/lang-switcher'
 import { useT } from '@/lib/i18n'
 import { useAuthStore } from '@/store/auth'
@@ -10,6 +10,7 @@ import { Sidebar } from './sidebar'
 /** На мобильных боковой панели нет, поэтому язык, тема и выход живут в верхней полосе. */
 function MobileTopBar() {
   const t = useT()
+  const user = useAuthStore((s) => s.user)
   const clearSession = useAuthStore((s) => s.clearSession)
   const { theme, toggleTheme } = useThemeStore()
 
@@ -26,6 +27,15 @@ function MobileTopBar() {
         >
           {theme === 'dark' ? <Sun className="size-[18px]" /> : <Moon className="size-[18px]" />}
         </button>
+        {user?.role === 'OWNER' ? (
+          <Link
+            to="/settings"
+            className="rounded-md p-1.5 text-muted transition-colors hover:text-ink"
+            aria-label={t('settings.title')}
+          >
+            <Settings className="size-[18px]" strokeWidth={1.5} />
+          </Link>
+        ) : null}
         <button
           type="button"
           onClick={clearSession}
