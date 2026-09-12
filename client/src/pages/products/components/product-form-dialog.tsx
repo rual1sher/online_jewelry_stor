@@ -28,7 +28,7 @@ const variantSchema = z.object({
   stock: z.coerce.number().int().min(0).optional(),
   costPrice: z.number().int().min(0).optional(),
   sellingPrice: z.number().int().min(0, 'validation.notNegative'),
-  minStock: z.coerce.number().int().min(0).optional(),
+  minStock: z.coerce.number().int().min(0).optional().default(0),
 })
 
 const schema = z.object({
@@ -247,7 +247,7 @@ export function ProductFormDialog({
                     ) : null}
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+                  <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
                     <div className="flex flex-col gap-1">
                       <Label className="text-[12px] text-muted">{t('field.cost')}</Label>
                       <MoneyInput
@@ -262,20 +262,12 @@ export function ProductFormDialog({
                         onChange={(v) => setValue(`variants.${index}.sellingPrice`, v)}
                       />
                     </div>
-                    <div className="flex flex-col gap-1">
+                    <div className="col-span-2 flex flex-col gap-1 sm:col-span-1">
                       <Label className="text-[12px] text-muted">{t('field.stock')}</Label>
                       <Input
                         type="number"
                         min={0}
                         {...register(`variants.${index}.stock` as const)}
-                      />
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <Label className="text-[12px] text-muted">{t('field.minStock')}</Label>
-                      <Input
-                        type="number"
-                        min={0}
-                        {...register(`variants.${index}.minStock` as const)}
                       />
                     </div>
                   </div>

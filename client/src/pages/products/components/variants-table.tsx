@@ -21,9 +21,9 @@ import { AdjustmentDialog } from '@/pages/inventory/components/adjustment-dialog
 import { ReceiptDialog } from '@/pages/inventory/components/receipt-dialog'
 import { VariantDialog } from './variant-dialog'
 
-function stockStatus(current: number, min: number) {
+function stockStatus(current: number, min?: number) {
   if (current <= 0) return 'OUT' as const
-  if (current <= min) return 'LOW' as const
+  if (min && min > 0 && current <= min) return 'LOW' as const
   return 'SUFFICIENT' as const
 }
 
@@ -60,7 +60,6 @@ export function VariantsTable({
             <TableHead>{t('field.current')}</TableHead>
             <TableHead>{t('field.cost')}</TableHead>
             <TableHead>{t('field.sellingPrice')}</TableHead>
-            <TableHead>{t('field.minStock')}</TableHead>
             <TableHead>{t('field.status')}</TableHead>
             <TableHead />
           </TableRow>
@@ -82,7 +81,6 @@ export function VariantsTable({
                 <TableCell>
                   <MoneyText amount={variant.sellingPrice} className="text-[13px]" />
                 </TableCell>
-                <TableCell className="tabular-nums text-muted">{variant.minStock}</TableCell>
                 <TableCell>
                   {variant.isArchived ? (
                     <StatusBadge label={t('productStatus.ARCHIVED')} tone="neutral" />

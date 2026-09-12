@@ -24,7 +24,7 @@ const schema = z.object({
   costPrice: z.number().int().min(0).optional(),
   sellingPrice: z.number().int().min(0),
   stock: z.coerce.number().int().min(0).optional(),
-  minStock: z.coerce.number().int().min(0),
+  minStock: z.coerce.number().int().min(0).optional().default(0),
 })
 
 type FormValues = z.input<typeof schema>
@@ -112,15 +112,9 @@ export function VariantDialog({
               <MoneyInput id="variant-price" value={watch('sellingPrice')} onChange={(v) => setValue('sellingPrice', v)} />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="variant-stock">{t('field.stock')}</Label>
-              <Input id="variant-stock" type="number" min={0} {...register('stock')} />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="variant-min">{t('field.minStock')}</Label>
-              <Input id="variant-min" type="number" min={0} {...register('minStock')} />
-            </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="variant-stock">{t('field.stock')}</Label>
+            <Input id="variant-stock" type="number" min={0} {...register('stock')} />
           </div>
           <DialogFooter>
             <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
