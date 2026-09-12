@@ -33,6 +33,15 @@ export class CreateOrderDto {
   items: CreateOrderItemDto[];
 
   @IsOptional()
+  @IsString()
+  packagingId?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  packagingPrice?: number;
+
+  @IsOptional()
   @IsInt()
   @Min(0)
   deliveryPrice?: number;

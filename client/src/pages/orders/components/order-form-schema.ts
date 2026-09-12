@@ -9,6 +9,8 @@ export const orderItemSchema = z.object({
 
 export const orderFormSchema = z.object({
   items: z.array(orderItemSchema).min(1, 'orders.itemRequired'),
+  packagingId: z.string().optional().nullable(),
+  packagingPrice: z.number().int().min(0),
   deliveryPrice: z.number().int().min(0),
   deliveryPaidBy: z.enum(['CUSTOMER', 'STORE']),
   comment: z.string().optional(),

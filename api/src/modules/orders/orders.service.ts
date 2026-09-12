@@ -65,11 +65,24 @@ export class OrdersService {
       }
       const variantById = new Map(variants.map((v) => [v.id, v]));
 
+      let packagingPrice = 0;
+      if (dto.packagingId) {
+        const packaging = await tx.packaging.findUnique({
+          where: { id: dto.packagingId },
+        });
+        if (!packaging) {
+          throw new NotFoundException('Упаковка не найдена');
+        }
+        packagingPrice = dto.packagingPrice ?? packaging.price;
+      }
+
       const orderNumber = await this.generateOrderNumber(tx);
 
       const order = await tx.order.create({
         data: {
           orderNumber,
+          packagingId: dto.packagingId ?? null,
+          packagingPrice,
           deliveryPrice: dto.deliveryPrice ?? 0,
           deliveryPaidBy: dto.deliveryPaidBy ?? DeliveryPayer.CUSTOMER,
           comment: dto.comment,
@@ -91,6 +104,7 @@ export class OrdersService {
         },
         include: {
           items: { include: { variant: { include: { product: true } } } },
+          packaging: true,
           statusHistory: true,
         },
       });
@@ -149,15 +163,38 @@ export class OrdersService {
         });
       }
 
+      let packagingId = order.packagingId;
+      let packagingPrice = order.packagingPrice;
+      if (dto.packagingId !== undefined) {
+        if (!dto.packagingId) {
+          packagingId = null;
+          packagingPrice = 0;
+        } else {
+          const packaging = await tx.packaging.findUnique({
+            where: { id: dto.packagingId },
+          });
+          if (!packaging) {
+            throw new NotFoundException('Упаковка не найдена');
+          }
+          packagingId = dto.packagingId;
+          packagingPrice = dto.packagingPrice ?? packaging.price;
+        }
+      } else if (dto.packagingPrice !== undefined) {
+        packagingPrice = dto.packagingPrice;
+      }
+
       return tx.order.update({
         where: { id },
         data: {
+          packagingId,
+          packagingPrice,
           deliveryPrice: dto.deliveryPrice,
           deliveryPaidBy: dto.deliveryPaidBy,
           comment: dto.comment,
         },
         include: {
           items: { include: { variant: { include: { product: true } } } },
+          packaging: true,
           payments: { orderBy: { paidAt: 'desc' } },
           statusHistory: { orderBy: { changedAt: 'asc' } },
         },
@@ -188,7 +225,7 @@ export class OrdersService {
         skip,
         take,
         orderBy: { createdAt: 'desc' },
-        include: { items: true, payments: true },
+        include: { items: true, payments: true, packaging: true },
       }),
       this.prisma.order.count({ where }),
     ]);
@@ -202,6 +239,7 @@ export class OrdersService {
       where: { id },
       include: {
         items: { include: { variant: { include: { product: true } } } },
+        packaging: true,
         payments: { orderBy: { paidAt: 'desc' } },
         statusHistory: { orderBy: { changedAt: 'asc' } },
       },
@@ -301,7 +339,10 @@ export class OrdersService {
         },
       });
 
-      const totalAmount = this.itemsAmount(order.items) + order.deliveryPrice;
+      const totalAmount =
+        this.itemsAmount(order.items) +
+        order.deliveryPrice +
+        order.packagingPrice;
       const paidAmount =
         order.payments.reduce((sum, p) => sum + p.amount, 0) + dto.amount;
 
@@ -344,7 +385,10 @@ export class OrdersService {
         },
       });
 
-      const totalAmount = this.itemsAmount(order.items) + order.deliveryPrice;
+      const totalAmount =
+        this.itemsAmount(order.items) +
+        order.deliveryPrice +
+        order.packagingPrice;
       const remainingPaid = paidAmount - dto.amount;
       const paymentStatus =
         remainingPaid <= 0
@@ -403,12 +447,16 @@ export class OrdersService {
     status: OrderStatus;
     paymentStatus: PaymentStatus;
     deliveryPrice: number;
+    packagingPrice: number;
+    packagingId?: string | null;
+    packaging?: { id: string; name: string; price: number } | null;
     createdAt: Date;
     items: { quantity: number; priceAtSale: number }[];
     payments: { amount: number }[];
   }) {
     const itemsAmount = this.itemsAmount(order.items);
-    const totalAmount = itemsAmount + order.deliveryPrice;
+    const packagingPrice = order.packagingPrice ?? 0;
+    const totalAmount = itemsAmount + order.deliveryPrice + packagingPrice;
     const paidAmount = order.payments.reduce((sum, p) => sum + p.amount, 0);
     return {
       id: order.id,
@@ -416,6 +464,9 @@ export class OrdersService {
       status: order.status,
       paymentStatus: order.paymentStatus,
       itemsAmount,
+      packagingPrice,
+      packagingId: order.packagingId,
+      packaging: order.packaging,
       deliveryPrice: order.deliveryPrice,
       totalAmount,
       paidAmount,
@@ -428,10 +479,13 @@ export class OrdersService {
   private computeFinancials(order: {
     deliveryPrice: number;
     deliveryPaidBy: DeliveryPayer;
+    packagingPrice: number;
     items: { quantity: number; priceAtSale: number; costAtSale: number }[];
     payments: { amount: number }[];
   }) {
-    const revenue = this.itemsAmount(order.items);
+    const packagingPrice = order.packagingPrice ?? 0;
+    const itemsAmount = this.itemsAmount(order.items);
+    const revenue = itemsAmount + packagingPrice;
     const cogs = order.items.reduce(
       (sum, i) => sum + i.quantity * i.costAtSale,
       0,
@@ -443,6 +497,8 @@ export class OrdersService {
     const totalAmount = revenue + order.deliveryPrice;
     const paidAmount = order.payments.reduce((sum, p) => sum + p.amount, 0);
     return {
+      itemsAmount,
+      packagingPrice,
       revenue,
       cogs,
       grossProfit,

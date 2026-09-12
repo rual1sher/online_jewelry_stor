@@ -9,6 +9,7 @@ import { ExpensesModule } from './modules/expenses/expenses.module';
 import { FinanceModule } from './modules/finance/finance.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { OrdersModule } from './modules/orders/orders.module';
+import { PackagingsModule } from './modules/packagings/packagings.module';
 import { ProductsModule } from './modules/products/products.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { SettingsModule } from './modules/settings/settings.module';
@@ -20,6 +21,7 @@ import { PrismaModule } from './prisma/prisma.module';
     PrismaModule,
     AuthModule,
     CategoriesModule,
+    PackagingsModule,
     ProductsModule,
     InventoryModule,
     OrdersModule,

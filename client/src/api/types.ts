@@ -66,6 +66,15 @@ export interface ExpenseCategory {
   createdAt: string
 }
 
+export interface Packaging {
+  id: string
+  name: string
+  price: number
+  isArchived: boolean
+  createdAt: string
+  updatedAt: string
+}
+
 export interface ProductImage {
   id: string
   productId: string
@@ -207,6 +216,9 @@ export interface OrderListItem {
   status: OrderStatus
   paymentStatus: PaymentStatus
   itemsAmount: number
+  packagingPrice: number
+  packagingId?: string | null
+  packaging?: Packaging | null
   deliveryPrice: number
   totalAmount: number
   paidAmount: number
@@ -220,6 +232,9 @@ export interface OrderDetail {
   orderNumber: string
   status: OrderStatus
   paymentStatus: PaymentStatus
+  packagingId?: string | null
+  packagingPrice: number
+  packaging?: Packaging | null
   deliveryPrice: number
   deliveryPaidBy: DeliveryPayer
   comment: string | null
@@ -229,6 +244,8 @@ export interface OrderDetail {
   payments: Payment[]
   statusHistory: OrderStatusHistoryEntry[]
   financials: {
+    itemsAmount?: number
+    packagingPrice?: number
     revenue: number
     cogs: number
     grossProfit: number

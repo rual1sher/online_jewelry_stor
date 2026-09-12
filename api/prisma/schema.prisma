@@ -178,11 +178,30 @@ enum PaymentMethod {
   OTHER
 }
 
+// ---------------------------------------------------------------------------
+// Упаковка
+// ---------------------------------------------------------------------------
+
+model Packaging {
+  id         String    @id @default(cuid())
+  name       String    @unique
+  price      Int       @default(0)
+  isArchived Boolean   @default(false) @map("is_archived")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  orders     Order[]
+
+  @@map("packagings")
+}
+
 model Order {
   id             String        @id @default(cuid())
   orderNumber    String        @unique @map("order_number")
   status         OrderStatus   @default(NEW)
   paymentStatus  PaymentStatus @default(UNPAID) @map("payment_status")
+  packagingId    String?       @map("packaging_id")
+  packaging      Packaging?    @relation(fields: [packagingId], references: [id])
+  packagingPrice Int           @default(0) @map("packaging_price")
   deliveryPrice  Int           @default(0) @map("delivery_price")
   deliveryPaidBy DeliveryPayer @default(CUSTOMER) @map("delivery_paid_by")
   comment        String?
@@ -196,6 +215,7 @@ model Order {
 
   @@index([status])
   @@index([paymentStatus])
+  @@index([packagingId])
   @@index([createdAt])
   @@map("orders")
 }

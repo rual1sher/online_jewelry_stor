@@ -59,6 +59,7 @@ export const common = {
   'field.stockAfter': ['Остаток после', 'Keyingi qoldiq'],
   'field.payment': ['Оплата', 'Toʻlov'],
   'field.delivery': ['Доставка', 'Yetkazib berish'],
+  'field.packaging': ['Упаковка', 'Qadoq'],
   'field.description': ['Описание', 'Tavsif'],
   'field.phone': ['Телефон', 'Telefon'],
   'field.password': ['Пароль', 'Parol'],

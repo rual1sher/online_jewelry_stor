@@ -22,6 +22,15 @@ export class UpdateOrderDto {
   items?: CreateOrderItemDto[];
 
   @IsOptional()
+  @IsString()
+  packagingId?: string | null;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  packagingPrice?: number;
+
+  @IsOptional()
   @IsInt()
   @Min(0)
   deliveryPrice?: number;

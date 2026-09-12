@@ -87,6 +87,7 @@ export function OrdersPage() {
                   <TableHead>{t('orders.number')}</TableHead>
                   <TableHead>{t('field.products')}</TableHead>
                   <TableHead>{t('orders.itemsAmount')}</TableHead>
+                  <TableHead>{t('field.packaging')}</TableHead>
                   <TableHead>{t('field.delivery')}</TableHead>
                   <TableHead>{t('orders.totalAmount')}</TableHead>
                   <TableHead>{t('field.payment')}</TableHead>
@@ -105,6 +106,15 @@ export function OrdersPage() {
                     <TableCell>{order.itemsCount}</TableCell>
                     <TableCell>
                       <MoneyText amount={order.itemsAmount} className="text-[13px]" />
+                    </TableCell>
+                    <TableCell className="tabular-nums text-muted text-[13px]">
+                      {order.packagingPrice > 0 ? (
+                        <span title={order.packaging?.name ?? undefined}>
+                          +{formatNumber(order.packagingPrice)}
+                        </span>
+                      ) : (
+                        '—'
+                      )}
                     </TableCell>
                     <TableCell className="tabular-nums text-muted">
                       {order.deliveryPrice > 0 ? `+${formatNumber(order.deliveryPrice)}` : '—'}

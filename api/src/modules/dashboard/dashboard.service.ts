@@ -54,7 +54,8 @@ export class DashboardService {
       itemsCount: order.items.length,
       totalAmount:
         order.items.reduce((sum, i) => sum + i.quantity * i.priceAtSale, 0) +
-        order.deliveryPrice,
+        order.deliveryPrice +
+        (order.packagingPrice || 0),
       status: order.status,
       paymentStatus: order.paymentStatus,
       createdAt: order.createdAt,

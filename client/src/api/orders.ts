@@ -51,6 +51,8 @@ export interface OrderItemInput {
 
 export interface CreateOrderPayload {
   items: OrderItemInput[]
+  packagingId?: string | null
+  packagingPrice?: number
   deliveryPrice?: number
   deliveryPaidBy?: DeliveryPayer
   comment?: string

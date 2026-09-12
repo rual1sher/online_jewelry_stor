@@ -23,6 +23,12 @@ export function OrderFinancials({ order }: { order: OrderDetail }) {
       </CardHeader>
       <CardContent className="divide-y divide-line">
         <Row label={t('chart.revenue')} amount={f.revenue} />
+        {order.packagingPrice > 0 ? (
+          <Row
+            label={`${t('field.packaging')}${order.packaging ? ` (${order.packaging.name})` : ''}`}
+            amount={order.packagingPrice}
+          />
+        ) : null}
         <Row label={t('orders.cogs')} amount={f.cogs} />
         <Row label={t('orders.grossProfit')} amount={f.grossProfit} />
         <Row

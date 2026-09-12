@@ -3,6 +3,7 @@ import { useT } from '@/lib/i18n'
 import { Card } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ExpenseCategoriesSection } from './components/expense-categories-section'
+import { PackagingManager } from './components/packaging-manager'
 import { ProductCategoriesSection } from './components/product-categories-section'
 import { StoreSettingsForm } from './components/store-settings-form'
 import { UsersManager } from './components/users-manager'
@@ -20,6 +21,7 @@ export function SettingsPage() {
           <TabsList>
             <TabsTrigger value="store">{t('settings.tabStore')}</TabsTrigger>
             <TabsTrigger value="product-categories">{t('settings.tabProductCategories')}</TabsTrigger>
+            <TabsTrigger value="packaging">{t('settings.tabPackaging')}</TabsTrigger>
             <TabsTrigger value="expense-categories">{t('settings.tabExpenseCategories')}</TabsTrigger>
             <TabsTrigger value="users">{t('settings.tabUsers')}</TabsTrigger>
           </TabsList>
@@ -28,6 +30,9 @@ export function SettingsPage() {
           </TabsContent>
           <TabsContent value="product-categories">
             <ProductCategoriesSection />
+          </TabsContent>
+          <TabsContent value="packaging">
+            <PackagingManager />
           </TabsContent>
           <TabsContent value="expense-categories">
             <ExpenseCategoriesSection />

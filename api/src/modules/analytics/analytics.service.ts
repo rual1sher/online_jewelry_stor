@@ -7,6 +7,7 @@ export interface DeliveredOrderSnapshot {
   deliveredAt: Date;
   deliveryPrice: number;
   deliveryPaidBy: DeliveryPayer;
+  packagingPrice: number;
   items: {
     variantId: string;
     productName: string;
@@ -54,6 +55,7 @@ export class AnalyticsService {
       deliveredAt: h.changedAt,
       deliveryPrice: h.order.deliveryPrice,
       deliveryPaidBy: h.order.deliveryPaidBy,
+      packagingPrice: h.order.packagingPrice ?? 0,
       items: h.order.items.map((item) => ({
         variantId: item.variantId,
         productName: item.variant.product.name,
@@ -70,7 +72,9 @@ export class AnalyticsService {
 
     const revenue = delivered.reduce(
       (sum, o) =>
-        sum + o.items.reduce((s, i) => s + i.quantity * i.priceAtSale, 0),
+        sum +
+        o.items.reduce((s, i) => s + i.quantity * i.priceAtSale, 0) +
+        (o.packagingPrice || 0),
       0,
     );
     const cogs = delivered.reduce(
@@ -110,10 +114,11 @@ export class AnalyticsService {
 
     for (const order of delivered) {
       const day = order.deliveredAt.toISOString().slice(0, 10);
-      const revenue = order.items.reduce(
-        (s, i) => s + i.quantity * i.priceAtSale,
-        0,
-      );
+      const revenue =
+        order.items.reduce(
+          (s, i) => s + i.quantity * i.priceAtSale,
+          0,
+        ) + (order.packagingPrice || 0);
       const cogs = order.items.reduce(
         (s, i) => s + i.quantity * i.costAtSale,
         0,
