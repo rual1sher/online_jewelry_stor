@@ -85,6 +85,7 @@ export function ProductsPage() {
                   <TableHead>{t('field.incoming')}</TableHead>
                   <TableHead>{t('field.outgoing')}</TableHead>
                   <TableHead>{t('field.current')}</TableHead>
+                  <TableHead>{t('field.cost')}</TableHead>
                   <TableHead>{t('field.sellingPrice')}</TableHead>
                   <TableHead>{t('field.status')}</TableHead>
                 </TableRow>
@@ -109,6 +110,9 @@ export function ProductsPage() {
                     <TableCell className="tabular-nums font-medium">{product.totalReceived}</TableCell>
                     <TableCell className="tabular-nums text-muted">{product.totalSold}</TableCell>
                     <TableCell className="tabular-nums font-semibold">{product.totalStock}</TableCell>
+                    <TableCell>
+                      <MoneyText amount={product.costPriceFrom ?? 0} className="text-[13px] text-muted" />
+                    </TableCell>
                     <TableCell>
                       <MoneyText amount={product.sellingPriceFrom} className="text-[13px]" />
                     </TableCell>

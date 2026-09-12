@@ -52,7 +52,7 @@ export const common = {
   'field.current': ['В наличии', 'Hozirgisi'],
   'field.minStock': ['Мин. остаток', 'Min. qoldiq'],
   'field.minShort': ['Мин.', 'Min.'],
-  'field.cost': ['Себестоимость', 'Tan narxi'],
+  'field.cost': ['Себестоимость', 'Asil narxi'],
   'field.sellingPrice': ['Цена продажи', 'Sotuv narxi'],
   'field.type': ['Тип', 'Turi'],
   'field.change': ['Изменение', 'Oʻzgarish'],
