@@ -108,7 +108,7 @@ export function ProductFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[640px]">
+      <DialogContent className="max-w-[700px] max-h-[92vh] overflow-y-auto w-[95vw] sm:w-full p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle>{t('products.newTitle')}</DialogTitle>
         </DialogHeader>
@@ -219,42 +219,66 @@ export function ProductFormDialog({
             ) : null}
             <div className="flex flex-col gap-3">
               {variants.fields.map((field, index) => (
-                <div key={field.id} className="grid grid-cols-[1.2fr_0.8fr_1fr_1fr_0.7fr_auto] items-end gap-2">
-                  <div className="flex flex-col gap-1">
-                    <Label className="text-[12px] text-muted">{t('variant.nameSizeShort')}</Label>
-                    <Input {...register(`variants.${index}.name` as const)} />
+                <div
+                  key={field.id}
+                  className="relative flex flex-col gap-3 rounded-lg border border-line bg-canvas/60 p-3 sm:p-4"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex flex-1 flex-col gap-1">
+                      <Label className="text-[12px] font-medium text-muted">
+                        {t('variant.nameSize')}
+                      </Label>
+                      <Input
+                        placeholder={t('variant.defaultName')}
+                        {...register(`variants.${index}.name` as const)}
+                      />
+                    </div>
+                    {variants.fields.length > 1 ? (
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="icon"
+                        className="mt-5 shrink-0 text-danger hover:bg-danger/10"
+                        onClick={() => variants.remove(index)}
+                        title={t('common.delete')}
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
+                    ) : null}
                   </div>
-                  <div className="flex flex-col gap-1">
-                    <Label className="text-[12px] text-muted">{t('field.stock')}</Label>
-                    <Input type="number" {...register(`variants.${index}.stock` as const)} />
+
+                  <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+                    <div className="flex flex-col gap-1">
+                      <Label className="text-[12px] text-muted">{t('field.cost')}</Label>
+                      <MoneyInput
+                        value={watch(`variants.${index}.costPrice` as const) ?? 0}
+                        onChange={(v) => setValue(`variants.${index}.costPrice`, v)}
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <Label className="text-[12px] text-muted">{t('field.sellingPrice')}</Label>
+                      <MoneyInput
+                        value={watch(`variants.${index}.sellingPrice` as const)}
+                        onChange={(v) => setValue(`variants.${index}.sellingPrice`, v)}
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <Label className="text-[12px] text-muted">{t('field.stock')}</Label>
+                      <Input
+                        type="number"
+                        min={0}
+                        {...register(`variants.${index}.stock` as const)}
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <Label className="text-[12px] text-muted">{t('field.minStock')}</Label>
+                      <Input
+                        type="number"
+                        min={0}
+                        {...register(`variants.${index}.minStock` as const)}
+                      />
+                    </div>
                   </div>
-                  <div className="flex flex-col gap-1">
-                    <Label className="text-[12px] text-muted">{t('variant.costPriceShort')}</Label>
-                    <MoneyInput
-                      value={watch(`variants.${index}.costPrice` as const) ?? 0}
-                      onChange={(v) => setValue(`variants.${index}.costPrice`, v)}
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <Label className="text-[12px] text-muted">{t('field.sellingPrice')}</Label>
-                    <MoneyInput
-                      value={watch(`variants.${index}.sellingPrice` as const)}
-                      onChange={(v) => setValue(`variants.${index}.sellingPrice`, v)}
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <Label className="text-[12px] text-muted">{t('field.minStock')}</Label>
-                    <Input type="number" {...register(`variants.${index}.minStock` as const)} />
-                  </div>
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="icon"
-                    disabled={variants.fields.length <= 1}
-                    onClick={() => variants.remove(index)}
-                  >
-                    <Trash2 className="size-4" />
-                  </Button>
                 </div>
               ))}
               <Button
@@ -269,7 +293,7 @@ export function ProductFormDialog({
             </div>
           </section>
 
-          <DialogFooter>
+          <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2">
             <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
               {t('common.cancel')}
             </Button>

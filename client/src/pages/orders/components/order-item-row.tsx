@@ -21,7 +21,7 @@ export function OrderItemRow({ index, onRemove, canRemove }: { index: number; on
   const itemErrors = errors.items?.[index]
 
   return (
-    <div className="grid grid-cols-[1.4fr_1.1fr_0.7fr_0.9fr_auto] items-end gap-2 rounded-md border border-line p-3">
+    <div className="relative flex flex-col gap-2.5 rounded-lg border border-line bg-canvas/60 p-3 sm:grid sm:grid-cols-2 lg:grid-cols-[1.4fr_1.1fr_0.7fr_0.9fr_auto] lg:items-end lg:gap-2">
       <div className="flex flex-col gap-1">
         <Label className="text-[12px] text-muted">{t('field.product')}</Label>
         <Select
@@ -71,20 +71,32 @@ export function OrderItemRow({ index, onRemove, canRemove }: { index: number; on
           <p className="text-[12px] text-danger">{t(itemErrors.variantId.message as TKey)}</p>
         ) : null}
       </div>
-      <div className="flex flex-col gap-1">
-        <Label className="text-[12px] text-muted">{t('field.quantity')}</Label>
-        <Input type="number" {...register(`items.${index}.quantity` as const)} />
+      <div className="grid grid-cols-2 gap-2 sm:col-span-2 lg:contents">
+        <div className="flex flex-col gap-1">
+          <Label className="text-[12px] text-muted">{t('field.quantity')}</Label>
+          <Input type="number" min={1} {...register(`items.${index}.quantity` as const)} />
+        </div>
+        <div className="flex flex-col gap-1">
+          <Label className="text-[12px] text-muted">{t('field.pricePerUnit')}</Label>
+          <MoneyInput
+            value={watch(`items.${index}.priceAtSale` as const)}
+            onChange={(v) => setValue(`items.${index}.priceAtSale`, v)}
+          />
+        </div>
       </div>
-      <div className="flex flex-col gap-1">
-        <Label className="text-[12px] text-muted">{t('field.pricePerUnit')}</Label>
-        <MoneyInput
-          value={watch(`items.${index}.priceAtSale` as const)}
-          onChange={(v) => setValue(`items.${index}.priceAtSale`, v)}
-        />
-      </div>
-      <Button type="button" variant="secondary" size="icon" disabled={!canRemove} onClick={onRemove}>
-        <Trash2 className="size-4" />
-      </Button>
+      {canRemove ? (
+        <div className="flex justify-end lg:block">
+          <Button
+            type="button"
+            variant="secondary"
+            size="icon"
+            className="text-danger hover:bg-danger/10"
+            onClick={onRemove}
+          >
+            <Trash2 className="size-4" />
+          </Button>
+        </div>
+      ) : null}
     </div>
   )
 }
