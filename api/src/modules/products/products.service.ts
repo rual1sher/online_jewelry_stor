@@ -85,7 +85,10 @@ export class ProductsService {
     const soldAgg = allVariantIds.length
       ? await this.prisma.orderItem.groupBy({
           by: ['variantId'],
-          where: { variantId: { in: allVariantIds } },
+          where: {
+            variantId: { in: allVariantIds },
+            order: { status: { not: OrderStatus.CANCELLED } },
+          },
           _sum: { quantity: true },
         })
       : [];
@@ -141,21 +144,27 @@ export class ProductsService {
 
     const variantIds = product.variants.map((v) => v.id);
 
-    const [soldAgg, deliveredAgg, variantSoldAgg] = await Promise.all([
+    const [soldAgg, activeItemsAgg, variantSoldAgg] = await Promise.all([
       this.prisma.orderItem.aggregate({
-        where: { variantId: { in: variantIds } },
+        where: {
+          variantId: { in: variantIds },
+          order: { status: { not: OrderStatus.CANCELLED } },
+        },
         _sum: { quantity: true },
       }),
       this.prisma.orderItem.findMany({
         where: {
           variantId: { in: variantIds },
-          order: { status: OrderStatus.DELIVERED },
+          order: { status: { not: OrderStatus.CANCELLED } },
         },
         select: { quantity: true, priceAtSale: true, costAtSale: true },
       }),
       this.prisma.orderItem.groupBy({
         by: ['variantId'],
-        where: { variantId: { in: variantIds } },
+        where: {
+          variantId: { in: variantIds },
+          order: { status: { not: OrderStatus.CANCELLED } },
+        },
         _sum: { quantity: true },
       }),
     ]);
@@ -164,11 +173,11 @@ export class ProductsService {
       variantSoldAgg.map((s) => [s.variantId, s._sum.quantity ?? 0]),
     );
 
-    const totalRevenue = deliveredAgg.reduce(
+    const totalRevenue = activeItemsAgg.reduce(
       (sum, i) => sum + i.quantity * i.priceAtSale,
       0,
     );
-    const totalCost = deliveredAgg.reduce(
+    const totalCost = activeItemsAgg.reduce(
       (sum, i) => sum + i.quantity * i.costAtSale,
       0,
     );

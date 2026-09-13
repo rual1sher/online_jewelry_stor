@@ -1,4 +1,5 @@
 import { EmptyState } from '@/components/common/empty-state'
+import { StatusBadge } from '@/components/common/status-badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import type { LowStockItem } from '@/api/types'
@@ -23,7 +24,7 @@ export function LowStockTable({ items }: { items: LowStockItem[] }) {
                 <TableHead>{t('field.product')}</TableHead>
                 <TableHead>{t('field.variant')}</TableHead>
                 <TableHead>{t('field.stock')}</TableHead>
-                <TableHead>{t('field.minShort')}</TableHead>
+                <TableHead>{t('field.status')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -41,7 +42,13 @@ export function LowStockTable({ items }: { items: LowStockItem[] }) {
                   <TableCell className="tabular-nums font-semibold text-danger">
                     {item.currentStock}
                   </TableCell>
-                  <TableCell className="tabular-nums text-muted">{item.minStock}</TableCell>
+                  <TableCell>
+                    {item.currentStock <= 0 ? (
+                      <StatusBadge label={t('stockStatus.OUT')} tone="danger" />
+                    ) : (
+                      <StatusBadge label={t('stockStatus.LOW')} tone="warning" />
+                    )}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
