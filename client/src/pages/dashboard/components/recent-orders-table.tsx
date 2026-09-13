@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Package } from 'lucide-react'
 import { EmptyState } from '@/components/common/empty-state'
 import { MoneyText } from '@/components/common/money-text'
 import { StatusBadge } from '@/components/common/status-badge'
@@ -45,7 +46,34 @@ export function RecentOrdersTable({ orders }: { orders: DashboardOverview['recen
                       {order.orderNumber}
                     </Link>
                   </TableCell>
-                  <TableCell>{order.itemsCount}</TableCell>
+                  <TableCell className="min-w-[160px]">
+                    <div className="flex items-center gap-2">
+                      <div className="size-8 shrink-0 overflow-hidden rounded border border-line bg-canvas flex items-center justify-center">
+                        {order.productImage ? (
+                          <img src={order.productImage} alt="" className="size-full object-cover" />
+                        ) : (
+                          <Package className="size-3.5 text-muted/60" />
+                        )}
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <div className="flex items-center gap-1">
+                          <span className="font-medium text-ink truncate text-[12px]">
+                            {order.productName || t('field.products')}
+                          </span>
+                          {order.itemsCount > 1 ? (
+                            <span className="shrink-0 rounded bg-canvas px-1 text-[9px] font-semibold text-muted border border-line">
+                              +{order.itemsCount - 1}
+                            </span>
+                          ) : null}
+                        </div>
+                        {order.variantName ? (
+                          <span className="text-[11px] text-muted truncate">
+                            {order.variantName}
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+                  </TableCell>
                   <TableCell>
                     <MoneyText amount={order.totalAmount} className="text-[13px]" />
                   </TableCell>

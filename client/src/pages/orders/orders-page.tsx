@@ -1,4 +1,4 @@
-import { Plus } from 'lucide-react'
+import { Package, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useOrders } from '@/api/orders'
@@ -102,8 +102,35 @@ export function OrdersPage() {
                     className="cursor-pointer"
                     onClick={() => navigate(`/orders/${order.id}`)}
                   >
-                    <TableCell className="font-medium text-accent">{order.orderNumber}</TableCell>
-                    <TableCell>{order.itemsCount}</TableCell>
+                    <TableCell className="font-medium text-accent whitespace-nowrap">{order.orderNumber}</TableCell>
+                    <TableCell className="min-w-[180px]">
+                      <div className="flex items-center gap-2.5">
+                        <div className="size-10 shrink-0 overflow-hidden rounded-md border border-line bg-canvas flex items-center justify-center">
+                          {order.productImage ? (
+                            <img src={order.productImage} alt="" className="size-full object-cover" />
+                          ) : (
+                            <Package className="size-4 text-muted/60" />
+                          )}
+                        </div>
+                        <div className="flex flex-col min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-medium text-ink truncate text-[13px]">
+                              {order.productName || t('field.products')}
+                            </span>
+                            {order.itemsCount > 1 ? (
+                              <span className="shrink-0 rounded bg-canvas px-1 py-0.5 text-[10px] font-semibold text-muted border border-line">
+                                +{order.itemsCount - 1}
+                              </span>
+                            ) : null}
+                          </div>
+                          {order.variantName ? (
+                            <span className="text-[12px] text-muted truncate">
+                              {order.variantName}
+                            </span>
+                          ) : null}
+                        </div>
+                      </div>
+                    </TableCell>
                     <TableCell>
                       <MoneyText amount={order.itemsAmount} className="text-[13px]" />
                     </TableCell>

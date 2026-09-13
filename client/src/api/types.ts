@@ -225,6 +225,16 @@ export interface OrderListItem {
   remainingAmount: number
   createdAt: string
   itemsCount: number
+  productName?: string | null
+  variantName?: string | null
+  productImage?: string | null
+  itemsSummary?: {
+    productName: string
+    variantName: string
+    productImage?: string | null
+    quantity: number
+    priceAtSale: number
+  }[]
 }
 
 export interface OrderDetail {
@@ -287,6 +297,9 @@ export interface DashboardOverview {
     id: string
     orderNumber: string
     itemsCount: number
+    productName?: string | null
+    variantName?: string | null
+    productImage?: string | null
     totalAmount: number
     status: OrderStatus
     paymentStatus: PaymentStatus

@@ -225,7 +225,23 @@ export class OrdersService {
         skip,
         take,
         orderBy: { createdAt: 'desc' },
-        include: { items: true, payments: true, packaging: true },
+        include: {
+          items: {
+            include: {
+              variant: {
+                include: {
+                  product: {
+                    include: {
+                      images: { orderBy: { sortOrder: 'asc' }, take: 1 },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          payments: true,
+          packaging: true,
+        },
       }),
       this.prisma.order.count({ where }),
     ]);
@@ -456,7 +472,17 @@ export class OrdersService {
     packagingId?: string | null;
     packaging?: { id: string; name: string; price: number } | null;
     createdAt: Date;
-    items: { quantity: number; priceAtSale: number }[];
+    items: {
+      quantity: number;
+      priceAtSale: number;
+      variant?: {
+        name: string;
+        product?: {
+          name: string;
+          images?: { url: string }[];
+        };
+      };
+    }[];
     payments: { amount: number }[];
   }) {
     const itemsAmount = this.itemsAmount(order.items);
@@ -465,6 +491,8 @@ export class OrdersService {
       order.deliveryPaidBy === DeliveryPayer.CUSTOMER ? order.deliveryPrice : 0;
     const totalAmount = itemsAmount + deliveryForCustomer + packagingPrice;
     const paidAmount = order.payments.reduce((sum, p) => sum + p.amount, 0);
+    const firstItem = order.items[0];
+
     return {
       id: order.id,
       orderNumber: order.orderNumber,
@@ -481,6 +509,16 @@ export class OrdersService {
       remainingAmount: totalAmount - paidAmount,
       createdAt: order.createdAt,
       itemsCount: order.items.length,
+      productName: firstItem?.variant?.product?.name ?? null,
+      variantName: firstItem?.variant?.name ?? null,
+      productImage: firstItem?.variant?.product?.images?.[0]?.url ?? null,
+      itemsSummary: order.items.map((i) => ({
+        productName: i.variant?.product?.name ?? '',
+        variantName: i.variant?.name ?? '',
+        productImage: i.variant?.product?.images?.[0]?.url ?? null,
+        quantity: i.quantity,
+        priceAtSale: i.priceAtSale,
+      })),
     };
   }
 

@@ -51,20 +51,40 @@ export class DashboardService {
     const orders = await this.prisma.order.findMany({
       take: RECENT_ORDERS_LIMIT,
       orderBy: { createdAt: 'desc' },
-      include: { items: true },
+      include: {
+        items: {
+          include: {
+            variant: {
+              include: {
+                product: {
+                  include: {
+                    images: { orderBy: { sortOrder: 'asc' }, take: 1 },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     });
 
-    return orders.map((order) => ({
-      id: order.id,
-      orderNumber: order.orderNumber,
-      itemsCount: order.items.length,
-      totalAmount:
-        order.items.reduce((sum, i) => sum + i.quantity * i.priceAtSale, 0) +
-        (order.deliveryPaidBy === DeliveryPayer.CUSTOMER ? order.deliveryPrice : 0) +
-        (order.packagingPrice || 0),
-      status: order.status,
-      paymentStatus: order.paymentStatus,
-      createdAt: order.createdAt,
-    }));
+    return orders.map((order) => {
+      const firstItem = order.items[0];
+      return {
+        id: order.id,
+        orderNumber: order.orderNumber,
+        itemsCount: order.items.length,
+        productName: firstItem?.variant?.product?.name ?? null,
+        variantName: firstItem?.variant?.name ?? null,
+        productImage: firstItem?.variant?.product?.images?.[0]?.url ?? null,
+        totalAmount:
+          order.items.reduce((sum, i) => sum + i.quantity * i.priceAtSale, 0) +
+          (order.deliveryPaidBy === DeliveryPayer.CUSTOMER ? order.deliveryPrice : 0) +
+          (order.packagingPrice || 0),
+        status: order.status,
+        paymentStatus: order.paymentStatus,
+        createdAt: order.createdAt,
+      };
+    });
   }
 }
