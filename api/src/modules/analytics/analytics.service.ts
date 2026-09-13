@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { DeliveryPayer, OrderStatus } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 
-export interface DeliveredOrderSnapshot {
+export interface ActiveOrderSnapshot {
   orderId: string;
-  deliveredAt: Date;
+  orderDate: Date;
   deliveryPrice: number;
   deliveryPaidBy: DeliveryPayer;
   packagingPrice: number;
@@ -31,35 +31,37 @@ export interface FinancialSummary {
 export class AnalyticsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // Заказ считается "доставленным за период", если переход в DELIVERED произошёл внутри диапазона дат.
-  async getDeliveredOrdersInRange(
+  // Barcha bekor qilinmagan buyurtmalar (NEW, CONFIRMED, SHIPPED, DELIVERED) savdo sifatida hisoblanadi.
+  async getActiveOrdersInRange(
     from: Date,
     to: Date,
-  ): Promise<DeliveredOrderSnapshot[]> {
-    const histories = await this.prisma.orderStatusHistory.findMany({
+  ): Promise<ActiveOrderSnapshot[]> {
+    const orders = await this.prisma.order.findMany({
       where: {
-        status: OrderStatus.DELIVERED,
-        changedAt: { gte: from, lte: to },
+        status: { not: OrderStatus.CANCELLED },
+        createdAt: { gte: from, lte: to },
       },
       include: {
-        order: {
+        items: {
           include: {
-            items: { include: { variant: { include: { product: true } } } },
+            variant: {
+              include: { product: true },
+            },
           },
         },
       },
     });
 
-    return histories.map((h) => ({
-      orderId: h.orderId,
-      deliveredAt: h.changedAt,
-      deliveryPrice: h.order.deliveryPrice,
-      deliveryPaidBy: h.order.deliveryPaidBy,
-      packagingPrice: h.order.packagingPrice ?? 0,
-      items: h.order.items.map((item) => ({
+    return orders.map((order) => ({
+      orderId: order.id,
+      orderDate: order.createdAt,
+      deliveryPrice: order.deliveryPrice,
+      deliveryPaidBy: order.deliveryPaidBy,
+      packagingPrice: order.packagingPrice ?? 0,
+      items: order.items.map((item) => ({
         variantId: item.variantId,
-        productName: item.variant.product.name,
-        variantName: item.variant.name,
+        productName: item.variant?.product?.name ?? '',
+        variantName: item.variant?.name ?? '',
         quantity: item.quantity,
         priceAtSale: item.priceAtSale,
         costAtSale: item.costAtSale,
@@ -67,22 +69,30 @@ export class AnalyticsService {
     }));
   }
 
-  async getFinancialSummary(from: Date, to: Date): Promise<FinancialSummary> {
-    const delivered = await this.getDeliveredOrdersInRange(from, to);
+  // Backward compatibility alias
+  async getDeliveredOrdersInRange(
+    from: Date,
+    to: Date,
+  ): Promise<ActiveOrderSnapshot[]> {
+    return this.getActiveOrdersInRange(from, to);
+  }
 
-    const revenue = delivered.reduce(
+  async getFinancialSummary(from: Date, to: Date): Promise<FinancialSummary> {
+    const orders = await this.getActiveOrdersInRange(from, to);
+
+    const revenue = orders.reduce(
       (sum, o) =>
         sum +
         o.items.reduce((s, i) => s + i.quantity * i.priceAtSale, 0) +
         (o.packagingPrice || 0),
       0,
     );
-    const cogs = delivered.reduce(
+    const cogs = orders.reduce(
       (sum, o) =>
         sum + o.items.reduce((s, i) => s + i.quantity * i.costAtSale, 0),
       0,
     );
-    const storeDeliveryCost = delivered
+    const storeDeliveryCost = orders
       .filter((o) => o.deliveryPaidBy === DeliveryPayer.STORE)
       .reduce((sum, o) => sum + o.deliveryPrice, 0);
 
@@ -109,11 +119,22 @@ export class AnalyticsService {
     from: Date,
     to: Date,
   ): Promise<{ date: string; revenue: number; profit: number }[]> {
-    const delivered = await this.getDeliveredOrdersInRange(from, to);
+    const orders = await this.getActiveOrdersInRange(from, to);
     const byDay = new Map<string, { revenue: number; profit: number }>();
 
-    for (const order of delivered) {
-      const day = order.deliveredAt.toISOString().slice(0, 10);
+    // Pre-populate all days in range [from, to] so line chart renders smoothly
+    const current = new Date(from);
+    const endDate = new Date(to);
+    let daysCount = 0;
+    while (current <= endDate && daysCount < 370) {
+      const day = current.toISOString().slice(0, 10);
+      byDay.set(day, { revenue: 0, profit: 0 });
+      current.setDate(current.getDate() + 1);
+      daysCount++;
+    }
+
+    for (const order of orders) {
+      const day = order.orderDate.toISOString().slice(0, 10);
       const revenue =
         order.items.reduce(
           (s, i) => s + i.quantity * i.priceAtSale,
@@ -175,7 +196,7 @@ export class AnalyticsService {
       profit: number;
     }[]
   > {
-    const delivered = await this.getDeliveredOrdersInRange(from, to);
+    const orders = await this.getActiveOrdersInRange(from, to);
     const byVariant = new Map<
       string,
       {
@@ -187,7 +208,7 @@ export class AnalyticsService {
       }
     >();
 
-    for (const order of delivered) {
+    for (const order of orders) {
       for (const item of order.items) {
         const existing = byVariant.get(item.variantId) ?? {
           productName: item.productName,

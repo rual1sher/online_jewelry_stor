@@ -90,12 +90,14 @@ export function OrderFormDialog({
   const watchedItems = form.watch('items') || []
   const watchedPackagingPrice = form.watch('packagingPrice') || 0
   const watchedDeliveryPrice = form.watch('deliveryPrice') || 0
+  const watchedDeliveryPaidBy = form.watch('deliveryPaidBy') || 'CUSTOMER'
 
   const itemsSum = watchedItems.reduce(
     (acc, i) => acc + (Number(i.quantity) || 0) * (Number(i.priceAtSale) || 0),
     0,
   )
-  const totalOrderSum = itemsSum + watchedPackagingPrice + watchedDeliveryPrice
+  const deliveryForCustomer = watchedDeliveryPaidBy === 'CUSTOMER' ? watchedDeliveryPrice : 0
+  const totalOrderSum = itemsSum + watchedPackagingPrice + deliveryForCustomer
 
   const onSubmit = form.handleSubmit(async (values) => {
     const payload = {
@@ -298,7 +300,15 @@ export function OrderFormDialog({
               {watchedDeliveryPrice > 0 ? (
                 <div className="flex justify-between text-muted">
                   <span>{t('orders.deliveryPrice')}:</span>
-                  <span className="font-medium text-ink">+{formatNumber(watchedDeliveryPrice)} soʻm</span>
+                  <span className="font-medium text-ink">
+                    {watchedDeliveryPaidBy === 'STORE' ? (
+                      <span className="text-success text-[12px] font-normal">
+                        ({t(DELIVERY_PAYER_KEY.STORE)})
+                      </span>
+                    ) : (
+                      `+${formatNumber(watchedDeliveryPrice)} soʻm`
+                    )}
+                  </span>
                 </div>
               ) : null}
               <div className="mt-1 flex justify-between border-t border-line pt-2 text-[15px] font-semibold text-ink">

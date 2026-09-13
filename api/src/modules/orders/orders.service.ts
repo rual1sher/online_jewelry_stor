@@ -339,10 +339,12 @@ export class OrdersService {
         },
       });
 
+      const deliveryForCustomer =
+        order.deliveryPaidBy === DeliveryPayer.CUSTOMER ? order.deliveryPrice : 0;
       const totalAmount =
         this.itemsAmount(order.items) +
-        order.deliveryPrice +
-        order.packagingPrice;
+        deliveryForCustomer +
+        (order.packagingPrice || 0);
       const paidAmount =
         order.payments.reduce((sum, p) => sum + p.amount, 0) + dto.amount;
 
@@ -385,10 +387,12 @@ export class OrdersService {
         },
       });
 
+      const deliveryForCustomer =
+        order.deliveryPaidBy === DeliveryPayer.CUSTOMER ? order.deliveryPrice : 0;
       const totalAmount =
         this.itemsAmount(order.items) +
-        order.deliveryPrice +
-        order.packagingPrice;
+        deliveryForCustomer +
+        (order.packagingPrice || 0);
       const remainingPaid = paidAmount - dto.amount;
       const paymentStatus =
         remainingPaid <= 0
@@ -447,6 +451,7 @@ export class OrdersService {
     status: OrderStatus;
     paymentStatus: PaymentStatus;
     deliveryPrice: number;
+    deliveryPaidBy: DeliveryPayer;
     packagingPrice: number;
     packagingId?: string | null;
     packaging?: { id: string; name: string; price: number } | null;
@@ -456,7 +461,9 @@ export class OrdersService {
   }) {
     const itemsAmount = this.itemsAmount(order.items);
     const packagingPrice = order.packagingPrice ?? 0;
-    const totalAmount = itemsAmount + order.deliveryPrice + packagingPrice;
+    const deliveryForCustomer =
+      order.deliveryPaidBy === DeliveryPayer.CUSTOMER ? order.deliveryPrice : 0;
+    const totalAmount = itemsAmount + deliveryForCustomer + packagingPrice;
     const paidAmount = order.payments.reduce((sum, p) => sum + p.amount, 0);
     return {
       id: order.id,
@@ -468,6 +475,7 @@ export class OrdersService {
       packagingId: order.packagingId,
       packaging: order.packaging,
       deliveryPrice: order.deliveryPrice,
+      deliveryPaidBy: order.deliveryPaidBy,
       totalAmount,
       paidAmount,
       remainingAmount: totalAmount - paidAmount,
@@ -494,7 +502,9 @@ export class OrdersService {
     const storeDeliveryCost =
       order.deliveryPaidBy === DeliveryPayer.STORE ? order.deliveryPrice : 0;
     const netProfit = grossProfit - storeDeliveryCost;
-    const totalAmount = revenue + order.deliveryPrice;
+    const deliveryForCustomer =
+      order.deliveryPaidBy === DeliveryPayer.CUSTOMER ? order.deliveryPrice : 0;
+    const totalAmount = revenue + deliveryForCustomer;
     const paidAmount = order.payments.reduce((sum, p) => sum + p.amount, 0);
     return {
       itemsAmount,

@@ -66,14 +66,16 @@ export function RevenueProfitChart({ data }: { data: ChartPoint[] }) {
                   dataKey="revenue"
                   stroke="var(--accent)"
                   strokeWidth={2}
-                  dot={false}
+                  dot={data.length <= 14 ? { r: 3 } : false}
+                  activeDot={{ r: 5 }}
                 />
                 <Line
                   type="monotone"
                   dataKey="profit"
                   stroke="#3C7A5C"
                   strokeWidth={2}
-                  dot={false}
+                  dot={data.length <= 14 ? { r: 3 } : false}
+                  activeDot={{ r: 5 }}
                 />
               </LineChart>
             </ResponsiveContainer>

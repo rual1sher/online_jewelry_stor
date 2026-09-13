@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { DeliveryPayer, OrderStatus } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AnalyticsService } from '../analytics/analytics.service';
 import { InventoryService } from '../inventory/inventory.service';
@@ -27,7 +28,12 @@ export class DashboardService {
       this.inventoryService.getTotalStockValue(),
       this.inventoryService.findLowStock(),
       this.getRecentOrders(),
-      this.prisma.order.count({ where: { createdAt: { gte: from, lte: to } } }),
+      this.prisma.order.count({
+        where: {
+          createdAt: { gte: from, lte: to },
+          status: { not: OrderStatus.CANCELLED },
+        },
+      }),
     ]);
 
     return {
@@ -54,7 +60,7 @@ export class DashboardService {
       itemsCount: order.items.length,
       totalAmount:
         order.items.reduce((sum, i) => sum + i.quantity * i.priceAtSale, 0) +
-        order.deliveryPrice +
+        (order.deliveryPaidBy === DeliveryPayer.CUSTOMER ? order.deliveryPrice : 0) +
         (order.packagingPrice || 0),
       status: order.status,
       paymentStatus: order.paymentStatus,
