@@ -1,0 +1,25 @@
+[build]
+  command = "npm install --include=dev && npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Прокси на backend (аналог proxy из vite.config.ts); /api срезается как в dev
+[[redirects]]
+  from = "/api/*"
+  to = "https://online-jewelry-stor.onrender.com/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/uploads/*"
+  to = "https://online-jewelry-stor.onrender.com/uploads/:splat"
+  status = 200
+  force = true
+
+# SPA fallback для React Router
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
