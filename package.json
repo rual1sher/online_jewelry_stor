@@ -1,14 +1,16 @@
 {
   "name": "online_jewelry_store",
   "version": "1.0.0",
-  "description": "",
+  "private": true,
   "license": "ISC",
   "author": "www.rualisher.uz",
-  "type": "commonjs",
-  "main": "index.js",
   "scripts": {
-    "dev": "npm run dev --prefix api & npm run dev --prefix client",
-    "install": "npm install --prefix api & npm install --prefix client",
-    "start": "npm run start --prefix api & npm run start --prefix client"
+    "install:all": "npm install --prefix api && npm install --prefix client",
+    "dev": "concurrently -n api,client \"npm run dev --prefix api\" \"npm run dev --prefix client\"",
+    "start": "concurrently -n api,client \"npm run start --prefix api\" \"npm run start --prefix client\"",
+    "start:prod": "npm run install:all && npm run prisma:generate --prefix api && npm run start"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.6"
   }
 }
